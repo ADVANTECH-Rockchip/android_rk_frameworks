@@ -56,6 +56,8 @@
 #include <limits.h>
 #include <time.h>
 
+#include <cutils/properties.h>
+
 #define INDENT "  "
 #define INDENT2 "    "
 #define INDENT3 "      "
@@ -870,9 +872,13 @@ bool InputDispatcher::dispatchMotionLocked(
     }
 
     // TODO: support sending secondary display events to input monitors
-    if (isMainDisplay(entry->displayId)) {
-        addMonitoringTargetsLocked(inputTargets);
-    }
+	if (property_get_bool("touch.dual", false)) {
+		addMonitoringTargetsLocked(inputTargets);
+	} else {
+		if (isMainDisplay(entry->displayId)) {
+			addMonitoringTargetsLocked(inputTargets);
+		}
+	}
 
     // Dispatch the motion.
     if (conflictingPointerActions) {

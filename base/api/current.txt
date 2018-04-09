@@ -26636,6 +26636,7 @@ package android.provider {
     field public static final java.lang.String AIRPLANE_MODE_RADIOS = "airplane_mode_radios";
     field public static final java.lang.String ALWAYS_FINISH_ACTIVITIES = "always_finish_activities";
     field public static final java.lang.String ANIMATOR_DURATION_SCALE = "animator_duration_scale";
+    field public static final java.lang.String AUTO_POWER_TIME = "auto_power_time";
     field public static final java.lang.String AUTO_TIME = "auto_time";
     field public static final java.lang.String AUTO_TIME_ZONE = "auto_time_zone";
     field public static final java.lang.String BLUETOOTH_ON = "bluetooth_on";
@@ -26797,6 +26798,7 @@ package android.provider {
     field public static final deprecated java.lang.String ALWAYS_FINISH_ACTIVITIES = "always_finish_activities";
     field public static final deprecated java.lang.String ANDROID_ID = "android_id";
     field public static final deprecated java.lang.String ANIMATOR_DURATION_SCALE = "animator_duration_scale";
+    field public static final deprecated java.lang.String AUTO_POWER_TIME = "auto_power_time";
     field public static final deprecated java.lang.String AUTO_TIME = "auto_time";
     field public static final deprecated java.lang.String AUTO_TIME_ZONE = "auto_time_zone";
     field public static final java.lang.String BLUETOOTH_DISCOVERABILITY = "bluetooth_discoverability";

@@ -1022,6 +1022,20 @@ class AlarmManagerService extends SystemService {
                 setImplLocked(type, triggerAtTime, triggerElapsed, windowLength, maxElapsed,
                         interval, operation, flags, true, workSource, alarmClock, callingUid, extra);
             }
+
+			// Start to setup auto power on alarm
+			if (type == AlarmManager.ELAPSED_REALTIME_WAKEUP || type == AlarmManager.ELAPSED_REALTIME){
+				if(operation.getIntent().getAction().equals("com.android.settings.action.REQUEST_POWER_ON")){
+
+				    Slog.v(TAG, "operation.getIntent.getAction().equals(com.android.settings.action.REQUEST_POWER_ON)");
+				    updateRtcAlarm(mNativeData, triggerAtTime/1000, true);
+				    //triggerAtTime/1000 is the poweron SystemTime in seconds
+				}else if(operation.getIntent().getAction().equals("com.android.settings.action.CANCLE_POWER_ON")){
+				    Slog.v(TAG, "operation.getIntent.getAction().equals(com.android.settings.action.CANCLE_POWER_ON)");
+				    updateRtcAlarm(mNativeData, triggerAtTime/1000, false);
+				}
+			}
+			// End to setup auto power on alarm
         }
     }
 
@@ -1947,6 +1961,7 @@ class AlarmManagerService extends SystemService {
     private native long init();
     private native void close(long nativeData);
     private native void set(long nativeData, int type, long seconds, long nanoseconds);
+    private native int updateRtcAlarm(long nativeData, long seconds, boolean aie);//advantech
     private native int waitForAlarm(long nativeData);
     private native int setKernelTime(long nativeData, long millis);
     private native int setKernelTimezone(long nativeData, int minuteswest);

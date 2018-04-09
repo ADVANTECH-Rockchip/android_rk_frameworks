@@ -63,6 +63,7 @@ public:
     virtual int set(int type, struct timespec *ts) = 0;
     virtual int setTime(struct timeval *tv) = 0;
     virtual int waitForAlarm() = 0;
+    virtual int setRtcAlarm(struct timeval *tv, bool aie){return -1;}//advantech
 
 protected:
     int *fds;
@@ -87,6 +88,7 @@ public:
     ~AlarmImplTimerFd();
 
     int set(int type, struct timespec *ts);
+    int setRtcAlarm(struct timeval *tv, bool aie);//advantech
     int setTime(struct timeval *tv);
     int waitForAlarm();
 
@@ -210,6 +212,75 @@ done:
     close(fd);
     return res;
 }
+
+//advantech
+//AlarmImplTimerFd is related to /dev/rtc, AlarmImplAlarmDriver is related to /dev/alarm
+//The reason to use /dev/rtc is that there is no ioctl() with /dev/alarm
+int AlarmImplTimerFd::setRtcAlarm(struct timeval *tv, bool aie)
+{
+    struct rtc_time rtc;
+    struct tm tm, *gmtime_res;
+    int fd;
+    int res;
+
+    if (rtc_id < 0) {
+        ALOGV("Not setting RTC because wall clock RTC was not found");
+        errno = ENODEV;
+        return -1;
+    }
+
+    android::String8 rtc_dev = String8::format("/dev/rtc%d", rtc_id);
+    fd = open(rtc_dev.string(), O_RDWR);
+    if (fd < 0) {
+        ALOGV("Unable to open %s: %s\n", rtc_dev.string(), strerror(errno));
+        return -1;//advantech  res
+    }
+
+    if(aie){
+        gmtime_res = gmtime_r(&tv->tv_sec, &tm);
+        if (!gmtime_res) {
+	    	 goto RtcAlarmdone;
+
+            ALOGV("gmtime_r() failed: %s\n", strerror(errno));
+            res = -1;
+        }
+
+        memset(&rtc, 0, sizeof(rtc));
+        rtc.tm_sec = tm.tm_sec;
+        rtc.tm_min = tm.tm_min;
+        rtc.tm_hour = tm.tm_hour;
+        rtc.tm_mday = tm.tm_mday;
+        rtc.tm_mon = tm.tm_mon;
+        rtc.tm_year = tm.tm_year;
+        rtc.tm_wday = tm.tm_wday;
+        rtc.tm_yday = tm.tm_yday;
+        rtc.tm_isdst = tm.tm_isdst;
+
+        //the sequence coundn't be changed
+	    res = ioctl(fd, RTC_ALM_SET, &rtc);
+        if (res < 0)
+            ALOGV("RTC_ALM_SET ioctl failed: %s\n", strerror(errno));
+	    else
+            ALOGV("RTC_ALM_SET ioctl succeeded\n");
+
+	    res = ioctl(fd, RTC_AIE_ON, 0);//RTC_AIE_ON is responsible to open the alarm interrupt
+	    if (res < 0)
+	    	ALOGV("RTC_AIE_ON ioctl failed: %s\n", strerror(errno));
+	    else
+	    	ALOGV("RTC_AIE_ON ioctl succeeded: %s\n", strerror(errno));
+    } else{
+		
+        res = ioctl(fd, RTC_AIE_OFF, 0);//RTC_AIE_ON is responsible to open the alarm interrupt
+	    if (res < 0)
+	    	ALOGV("RTC_AIE_OFF ioctl failed: %s\n", strerror(errno));
+	    else
+	    	ALOGV("RTC_AIE_OFF ioctl succeeded: %s\n", strerror(errno));
+    }
+RtcAlarmdone:
+    close(fd);
+    return res;
+}
+//advantech
 
 int AlarmImplTimerFd::waitForAlarm()
 {
@@ -441,6 +512,32 @@ static void android_server_AlarmManagerService_set(JNIEnv*, jobject, jlong nativ
     }
 }
 
+//advantech
+static jint android_server_AlarmManagerService_updateRtcAlarm(JNIEnv*, jobject, jlong nativeData, jlong seconds, jboolean aie)
+{
+    AlarmImpl *impl = reinterpret_cast<AlarmImpl *>(nativeData);
+    struct timeval tv;
+    int ret;
+
+    if (seconds <= 0 || seconds >= INT_MAX) {
+        return -1;
+    }
+
+    tv.tv_sec = (time_t) (seconds);
+    tv.tv_usec = (suseconds_t) (0);
+
+    ALOGD("Setting time of rtc alarm to sec=%d\n", (int) tv.tv_sec);
+
+    ret = impl->setRtcAlarm(&tv, aie);
+
+    if(ret < 0) {
+        ALOGW("Unable to set rtc alarm to %ld: %s\n", tv.tv_sec, strerror(errno));
+        ret = -1;
+    }
+    return ret;
+}
+//advantech
+
 static jint android_server_AlarmManagerService_waitForAlarm(JNIEnv*, jobject, jlong nativeData)
 {
     AlarmImpl *impl = reinterpret_cast<AlarmImpl *>(nativeData);
@@ -465,6 +562,7 @@ static JNINativeMethod sMethods[] = {
     {"init", "()J", (void*)android_server_AlarmManagerService_init},
     {"close", "(J)V", (void*)android_server_AlarmManagerService_close},
     {"set", "(JIJJ)V", (void*)android_server_AlarmManagerService_set},
+    {"updateRtcAlarm", "(JJZ)I", (void*)android_server_AlarmManagerService_updateRtcAlarm},//advantech
     {"waitForAlarm", "(J)I", (void*)android_server_AlarmManagerService_waitForAlarm},
     {"setKernelTime", "(JJ)I", (void*)android_server_AlarmManagerService_setKernelTime},
     {"setKernelTimezone", "(JI)I", (void*)android_server_AlarmManagerService_setKernelTimezone},

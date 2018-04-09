@@ -1515,6 +1515,7 @@ public final class Settings {
             MOVED_TO_GLOBAL.add(Settings.Global.AIRPLANE_MODE_TOGGLEABLE_RADIOS);
             MOVED_TO_GLOBAL.add(Settings.Global.AUTO_TIME);
             MOVED_TO_GLOBAL.add(Settings.Global.AUTO_TIME_ZONE);
+			MOVED_TO_GLOBAL.add(Settings.Global.AUTO_POWER_TIME);
             MOVED_TO_GLOBAL.add(Settings.Global.CAR_DOCK_SOUND);
             MOVED_TO_GLOBAL.add(Settings.Global.CAR_UNDOCK_SOUND);
             MOVED_TO_GLOBAL.add(Settings.Global.DESK_DOCK_SOUND);
@@ -2880,6 +2881,13 @@ public final class Settings {
         public static final String AUTO_TIME_ZONE = Global.AUTO_TIME_ZONE;
 
         /**
+        * @deprecated Use {@link android.provider.Settings.Global#AUTO_POWER_TIME}
+        * instead
+        */
+        @Deprecated
+        public static final String AUTO_POWER_TIME = Global.AUTO_POWER_TIME;
+
+        /**
          * Display times as 12 or 24 hours
          *   12
          *   24
@@ -3355,6 +3363,7 @@ public final class Settings {
             TEXT_SHOW_PASSWORD,
             AUTO_TIME,                  // moved to global
             AUTO_TIME_ZONE,             // moved to global
+            AUTO_POWER_TIME,            // moved to global
             TIME_12_24,
             DATE_FORMAT,
             DTMF_TONE_WHEN_DIALING,
@@ -6212,6 +6221,12 @@ public final class Settings {
          * to be automatically fetched from the network (NITZ). 1=yes, 0=no
          */
         public static final String AUTO_TIME_ZONE = "auto_time_zone";
+
+        /**
+         * Value to specify if the user prefers the date, time and time zone
+         * to be automatically fetched from the network (NITZ). 1=yes, 0=no
+         */
+         public static final String AUTO_POWER_TIME = "auto_power_time";
 
         /**
          * URI for the car dock "in" event sound.
