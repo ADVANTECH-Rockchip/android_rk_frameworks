@@ -1317,7 +1317,11 @@ status_t EventHub::openDeviceLocked(const char *devicePath) {
     }
 
     // Determine whether the device is external or internal.
-if (property_get_bool("touch.dual", false)) {
+if (property_get_bool("persist.dual.touch", false)) {
+	if (isExternalDeviceLocked(device)) {
+		device->classes |= INPUT_DEVICE_CLASS_EXTERNAL;
+	}
+} else {
 	if (isExternalDeviceLocked(device)) {
 		//Determine whether the device is touch pad.
 		if (device->classes
@@ -1336,10 +1340,6 @@ if (property_get_bool("touch.dual", false)) {
 		} else {
 			device->classes |= INPUT_DEVICE_CLASS_EXTERNAL;
 		}
-	}
-} else {
-	if (isExternalDeviceLocked(device)) {
-		device->classes |= INPUT_DEVICE_CLASS_EXTERNAL;
 	}
 }
 

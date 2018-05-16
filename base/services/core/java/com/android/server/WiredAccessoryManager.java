@@ -426,17 +426,22 @@ final class WiredAccessoryManager implements WiredAccessoryCallbacks {
             //
             // If the kernel does not have an "hdmi_audio" switch, just fall back on the older
             // "hdmi" switch instead.
-            uei = new UEventInfo(NAME_HDMI_AUDIO, BIT_HDMI_AUDIO, 0, 0);
-            if (uei.checkSwitchExists()) {
-                retVal.add(uei);
-            } else {
-                uei = new UEventInfo(NAME_HDMI, BIT_HDMI_AUDIO, 0, 0);
-                if (uei.checkSwitchExists()) {
-                    retVal.add(uei);
-                } else {
-                    Slog.w(TAG, "This kernel does not have HDMI audio support");
-                }
-            }
+			boolean IsDualAudio = SystemProperties.getBoolean(
+					"persist.dual.audio", false);
+			if (!IsDualAudio) {
+				uei = new UEventInfo(NAME_HDMI_AUDIO, BIT_HDMI_AUDIO, 0, 0);
+				if (uei.checkSwitchExists()) {
+					retVal.add(uei);
+				} else {
+					uei = new UEventInfo(NAME_HDMI, BIT_HDMI_AUDIO, 0, 0);
+					if (uei.checkSwitchExists()) {
+						retVal.add(uei);
+					} else {
+						Slog.w(TAG,
+								"This kernel does not have HDMI audio support");
+					}
+				}
+			}
 
             return retVal;
         }
