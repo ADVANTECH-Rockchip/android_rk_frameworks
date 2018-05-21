@@ -873,11 +873,11 @@ bool InputDispatcher::dispatchMotionLocked(
 
     // TODO: support sending secondary display events to input monitors
 	if (property_get_bool("persist.dual.touch", false)) {
+        addMonitoringTargetsLocked(inputTargets);
+	} else {
 	    if (isMainDisplay(entry->displayId)) {
 			addMonitoringTargetsLocked(inputTargets);
 		}
-	} else {
-		addMonitoringTargetsLocked(inputTargets);
 	}
 
     // Dispatch the motion.
