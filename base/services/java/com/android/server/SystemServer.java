@@ -601,6 +601,13 @@ public final class SystemServer {
         } catch (Throwable e) {
             reportWtf("making display ready", e);
         }
+		
+		try {
+               Slog.i(TAG, "AdvSdk Service");
+                ServiceManager.addService("advsdk", new AdvSdkService(context));
+        } catch (Throwable e) {
+                reportWtf("starting AdvSdk Service", e);
+        }
 
         if (mFactoryTestMode != FactoryTest.FACTORY_TEST_LOW_LEVEL) {
             if (!disableStorage &&

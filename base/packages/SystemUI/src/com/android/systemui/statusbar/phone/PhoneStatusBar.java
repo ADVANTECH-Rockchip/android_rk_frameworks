@@ -1083,6 +1083,30 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         return mStatusBarView;
     }
+	
+	private void setNavigationBarBackgroundColor(){
+        int clr = SystemProperties.getInt("persist.navbar.color", 0);
+        if (0!=clr) {
+            mNavigationBarView.setBackgroundColor(clr);
+        }
+    }
+	
+	private void setStatusBarBackgroundColor(){
+        int clr = SystemProperties.getInt("persist.statusbar.color", 0);
+        if (0!=clr) {
+            mStatusBarView.setBackgroundColor(clr);
+        }
+    }
+	
+	private void showStatusBarIconBattery(){
+        boolean BatteryVisible = SystemProperties.getBoolean("persist.sb.ic.battery", true);
+        mIconController.setBatteryVisibility(BatteryVisible);
+    }
+
+    private void showStatusBarIconTime(){
+        boolean TimeVisible = SystemProperties.getBoolean("persist.sb.ic.time", true);
+        mIconController.setClockVisibility(TimeVisible);
+    }
 
     private void clearAllNotifications() {
 
@@ -2034,16 +2058,22 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 mIconController.showSystemIconArea(animate);
             }
         }
-
+        /*
         if ((diff1 & StatusBarManager.DISABLE_CLOCK) != 0) {
             boolean visible = (state1 & StatusBarManager.DISABLE_CLOCK) == 0;
             mIconController.setClockVisibility(visible);
         }
+		*/
         if ((diff1 & StatusBarManager.DISABLE_EXPAND) != 0) {
             if ((state1 & StatusBarManager.DISABLE_EXPAND) != 0) {
                 animateCollapsePanels();
             }
         }
+		
+	     // showStatusBarIconBattery();
+         showStatusBarIconTime();
+         setStatusBarBackgroundColor();
+         setNavigationBarBackgroundColor();
 
         if ((diff1 & (StatusBarManager.DISABLE_HOME
                         | StatusBarManager.DISABLE_RECENT
@@ -2563,6 +2593,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 Integer.toHexString(vis), Integer.toHexString(mask),
                 Integer.toHexString(oldVal), Integer.toHexString(newVal),
                 Integer.toHexString(diff)));
+		boolean prop = SystemProperties.getBoolean("persist.statusbar", true);
+        mStatusBarView.setVisibility( prop ? View.VISIBLE : View.INVISIBLE);
         if (diff != 0) {
             // we never set the recents bit via this method, so save the prior state to prevent
             // clobbering the bit below
