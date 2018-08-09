@@ -36,8 +36,10 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.PointF;
@@ -64,6 +66,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.Vibrator;
@@ -94,6 +97,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.FrameLayout;
 
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.statusbar.NotificationVisibility;
@@ -159,6 +163,7 @@ import com.android.systemui.statusbar.stack.StackStateAnimator;
 import com.android.systemui.statusbar.stack.StackViewState;
 import com.android.systemui.volume.VolumeComponent;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -798,6 +803,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         mStatusBarWindow = (StatusBarWindowView) View.inflate(context,
                 R.layout.super_status_bar, null);
+        if(!SystemProperties.getBoolean("persist.statusbar", true)){
+            mStatusBarWindow.setVisibility(View.INVISIBLE);
+        }
         mStatusBarWindow.setService(this);
         mStatusBarWindow.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -814,6 +822,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         mStatusBarView = (PhoneStatusBarView) mStatusBarWindow.findViewById(R.id.status_bar);
         mStatusBarView.setBar(this);
+        FrameLayout.LayoutParams lytp = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, getStatusBarHeightFromProperty());
+        mStatusBarView.setLayoutParams(lytp);
 
         PanelHolder holder = (PanelHolder) mStatusBarWindow.findViewById(R.id.panel_holder);
         mStatusBarView.setPanelHolder(holder);
@@ -1083,6 +1093,17 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         return mStatusBarView;
     }
+    private void setNavigationBarBackgroundDrawable(){
+        String background_pic_path = SystemProperties.get("persist.navbar.picture", null);
+		if(background_pic_path!=null && !background_pic_path.isEmpty()){
+			File pathToPicture = new File(background_pic_path);
+			if(pathToPicture.exists() && !pathToPicture.isDirectory()) {
+				Bitmap bitmap = BitmapFactory.decodeFile(background_pic_path);
+                Drawable drawable = new BitmapDrawable(mContext.getResources(), bitmap);
+                mNavigationBarView.setBackgroundDrawable(drawable);
+			}
+		}
+    }
 	
 	private void setNavigationBarBackgroundColor(){
         int clr = SystemProperties.getInt("persist.navbar.color", 0);
@@ -1106,6 +1127,18 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private void showStatusBarIconTime(){
         boolean TimeVisible = SystemProperties.getBoolean("persist.sb.ic.time", true);
         mIconController.setClockVisibility(TimeVisible);
+    }
+	
+    private int getStatusBarHeightFromProperty()
+    {
+        final Resources res = mContext.getResources();
+        int defaultHeight = res.getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height);
+        boolean sbVisible = SystemProperties.getBoolean("persist.statusbar", true);
+        int sbHeight = SystemProperties.getInt("persist.statusbar.height", defaultHeight);
+        if(sbVisible == false || sbHeight == 0){
+            sbHeight = 0;
+        }
+        return sbHeight;
     }
 
     private void clearAllNotifications() {
@@ -1215,8 +1248,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     public int getStatusBarHeight() {
         if (mNaturalBarHeight < 0) {
             final Resources res = mContext.getResources();
-            mNaturalBarHeight =
-                    res.getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height);
+            mNaturalBarHeight = getStatusBarHeightFromProperty();
+                    //res.getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height);
         }
         return mNaturalBarHeight;
     }
@@ -1227,6 +1260,34 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             toggleRecentApps();
         }
     };
+	
+    private View.OnClickListener mLeftCustomButtomClickListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            awakenDreams();
+            String pkg = SystemProperties.get("persist.cust.navi.left.pkname", null);
+            String act = SystemProperties.get("persist.cust.navi.left.act", null);
+            if( pkg == null || act == null){
+                return;
+            }
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName(pkg, act));
+            startActivity(intent, true);
+        }
+    };
+	
+    private View.OnClickListener mRightCustomButtomClickListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            awakenDreams();
+            String pkg = SystemProperties.get("persist.cust.navi.right.pkname", null);
+            String act = SystemProperties.get("persist.cust.navi.right.act", null);
+             if( pkg == null || act == null){
+                 return;
+             }
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName(pkg, act));
+            startActivity(intent, true);
+       }
+   };
 
     private long mLastLockToAppLongPress;
     private View.OnLongClickListener mLongPressBackRecentsListener =
@@ -1307,6 +1368,14 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
 	    mNavigationBarView.getScreenshotButton().setOnTouchListener(mScreenshotPreloadOnTouchListener);
 
+		if (mNavigationBarView.getLeftCustomButton() != null) {
+			mNavigationBarView.getLeftCustomButton().setOnClickListener(
+					mLeftCustomButtomClickListener);
+		}
+		if (mNavigationBarView.getLeftCustomButton() != null) {
+			mNavigationBarView.getRightCustomButton().setOnClickListener(
+					mRightCustomButtomClickListener);
+    }
         mNavigationBarView.getRecentsButton().setOnClickListener(mRecentsClickListener);
         mNavigationBarView.getRecentsButton().setOnTouchListener(mRecentsPreloadOnTouchListener);
         mNavigationBarView.getRecentsButton().setLongClickable(true);
@@ -2074,6 +2143,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
          showStatusBarIconTime();
          setStatusBarBackgroundColor();
          setNavigationBarBackgroundColor();
+		 setNavigationBarBackgroundDrawable();
 
         if ((diff1 & (StatusBarManager.DISABLE_HOME
                         | StatusBarManager.DISABLE_RECENT
@@ -2670,6 +2740,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 mSystemUiVisibility |= View.RECENT_APPS_VISIBLE;
             }
 
+            if(!SystemProperties.getBoolean("persist.statusbar", true)){
+                return;
+            }
             // send updated sysui visibility to window manager
             notifyUiVisibilityChanged(mSystemUiVisibility);
         }
@@ -3255,6 +3328,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mNaturalBarHeight = res.getDimensionPixelSize(
                 com.android.internal.R.dimen.status_bar_height);
 
+        mNaturalBarHeight = getStatusBarHeightFromProperty();
         mRowMinHeight =  res.getDimensionPixelSize(R.dimen.notification_min_height);
         mRowMaxHeight =  res.getDimensionPixelSize(R.dimen.notification_max_height);
 

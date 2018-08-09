@@ -1650,6 +1650,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         mStatusBarHeight =
                 res.getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height);
+        int sbHeight = SystemProperties.getInt("persist.statusbar.height", mStatusBarHeight);
 
         // Height of the navigation bar when presented horizontally at bottom
         mNavigationBarHeightForRotation[mPortraitRotation] =
@@ -3641,11 +3642,21 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // size.  We need to do this directly, instead of relying on
                 // it to bubble up from the nav bar, because this needs to
                 // change atomically with screen rotations.
+                boolean hideNavBar = false;
+                if (!SystemProperties.getBoolean("persist.navbar", true)){
+                        hideNavBar = true;
+                }
+				int mNavigationBarWidth =
+                mContext.getResources().getDimensionPixelSize(com.android.internal.R.dimen.navigation_bar_width);
+                int navbarH = SystemProperties.getInt("persist.navbar.height", mNavigationBarWidth);
                 mNavigationBarOnBottom = (!mNavigationBarCanMove || displayWidth < displayHeight);
                 if (mNavigationBarOnBottom) {
                     // It's a system nav bar or a portrait screen; nav bar goes on bottom.
                     int top = displayHeight - overscanBottom
                             - mNavigationBarHeightForRotation[displayRotation];
+                    if(hideNavBar){
+                        top = displayHeight - overscanBottom;
+                    }
                     mTmpNavigationFrame.set(0, top, displayWidth, displayHeight - overscanBottom);
                     mStableBottom = mStableFullscreenBottom = mTmpNavigationFrame.top;
                     if (transientNavBarShowing) {
@@ -3671,6 +3682,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     // Landscape screen; nav bar goes to the right.
                     int left = displayWidth - overscanRight
                             - mNavigationBarWidthForRotation[displayRotation];
+                    if(hideNavBar){
+                        left = displayWidth - overscanRight;
+                    }
                     mTmpNavigationFrame.set(left, 0, displayWidth - overscanRight, displayHeight);
                     mStableRight = mStableFullscreenRight = mTmpNavigationFrame.left;
                     if (transientNavBarShowing) {
@@ -3711,7 +3725,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
             if (DEBUG_LAYOUT) Slog.i(TAG, String.format("mDock rect: (%d,%d - %d,%d)",
                     mDockLeft, mDockTop, mDockRight, mDockBottom));
-
+            final Resources res = mContext.getResources();
+            mStatusBarHeight =
+                res.getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height);
+            int sbHeight = SystemProperties.getInt("persist.statusbar.height", mStatusBarHeight);
+            if(!SystemProperties.getBoolean("persist.statusbar", true)){
+                mStatusBarHeight = 0;
+            } else {
+                mStatusBarHeight = sbHeight;
+            }
             // decide where the status bar goes ahead of time
             if (mStatusBar != null) {
                 // apply any navigation bar insets

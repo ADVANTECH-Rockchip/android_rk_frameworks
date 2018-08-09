@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.text.InputType;
 import android.text.Layout;
@@ -1157,8 +1158,13 @@ public class InputMethodService extends AbstractInputMethodService {
      */
     public boolean onEvaluateInputViewShown() {
         Configuration config = getResources().getConfiguration();
-        return config.keyboard == Configuration.KEYBOARD_NOKEYS
-                || config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES;
+        boolean prop = SystemProperties.getBoolean("persist.inputmethod.dual", false);
+        if (prop) {
+           return true;
+        } else {
+        	return config.keyboard == Configuration.KEYBOARD_NOKEYS
+                    || config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES;
+		}
     }
     
     /**
