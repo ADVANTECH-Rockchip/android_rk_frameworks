@@ -1368,14 +1368,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
 	    mNavigationBarView.getScreenshotButton().setOnTouchListener(mScreenshotPreloadOnTouchListener);
 
-		if (mNavigationBarView.getLeftCustomButton() != null) {
-			mNavigationBarView.getLeftCustomButton().setOnClickListener(
-					mLeftCustomButtomClickListener);
-		}
-		if (mNavigationBarView.getLeftCustomButton() != null) {
-			mNavigationBarView.getRightCustomButton().setOnClickListener(
-					mRightCustomButtomClickListener);
-    }
+        mNavigationBarView.getLeftCustomButton().setOnClickListener(mLeftCustomButtomClickListener);
+        mNavigationBarView.getRightCustomButton().setOnClickListener(mRightCustomButtomClickListener);
         mNavigationBarView.getRecentsButton().setOnClickListener(mRecentsClickListener);
         mNavigationBarView.getRecentsButton().setOnTouchListener(mRecentsPreloadOnTouchListener);
         mNavigationBarView.getRecentsButton().setLongClickable(true);

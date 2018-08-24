@@ -379,19 +379,10 @@ public class NavigationBarView extends LinearLayout {
         setButtonVisible(getRecentsButton(), "persist.navbar.recent");
         boolean propLeft = SystemProperties.getBoolean("persist.cust.navi.add.left", false);
         boolean propRight = SystemProperties.getBoolean("persist.cust.navi.add.right", false);
-        
-		if (getLeftCustomButton() != null) {
-			getLeftCustomButton().setVisibility(
-					propLeft ? View.VISIBLE : View.GONE);
-			setCustomButtonBackgroundDrawable(getLeftCustomButton(),
-					"persist.cust.navi.pic.left");
-		}
-		if (getRightCustomButton() != null) {
-			getRightCustomButton().setVisibility(
-					propRight ? View.VISIBLE : View.GONE);
-			setCustomButtonBackgroundDrawable(getRightCustomButton(),
-					"persist.cust.navi.pic.right");
-		}
+        getLeftCustomButton().setVisibility(propLeft ? View.VISIBLE : View.GONE);
+        getRightCustomButton().setVisibility(propRight ? View.VISIBLE : View.GONE);
+        setCustomButtonBackgroundDrawable(getLeftCustomButton(), "persist.cust.navi.pic.left");
+        setCustomButtonBackgroundDrawable(getRightCustomButton(), "persist.cust.navi.pic.right");
 
         if ("true".equals(isEnableShowVoiceIcon)) {
              if(getVolumeSubButton()!=null)
@@ -414,12 +405,10 @@ public class NavigationBarView extends LinearLayout {
         }
     }
 	
-	private void setButtonVisible(View view, String property) {
-		if (view != null) {
-			boolean prop = SystemProperties.getBoolean(property, true);
-			view.setVisibility(prop ? View.VISIBLE : View.GONE);
-		}
-	}
+    private void setButtonVisible(View view, String property){
+        boolean prop = SystemProperties.getBoolean(property, true);
+        view.setVisibility(prop ? View.VISIBLE : View.GONE);
+    }
 	
     private void setCustomButtonBackgroundDrawable(View view, String property){
         String background_pic_path = SystemProperties.get(property, null);
