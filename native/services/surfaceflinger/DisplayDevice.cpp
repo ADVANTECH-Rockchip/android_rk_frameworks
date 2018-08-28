@@ -474,7 +474,7 @@ void DisplayDevice::setProjection(int orientation,
         Rect newFrameRotated = Rect(0,0,getHeight(),getWidth());
         float frameRatio = (float)frame.getWidth() / frame.getHeight();
         char value[PROPERTY_VALUE_MAX];
-        property_get("ro.sf.hwrotation", value, "0");
+        property_get("persist.sys.hwrotation", value, "0");
         isSfHwrotated = atoi(value) != 0;
         property_get("ro.same.orientation", value, "false");
         isPrimaryExternalSameOrientation = !strcmp(value,"true");

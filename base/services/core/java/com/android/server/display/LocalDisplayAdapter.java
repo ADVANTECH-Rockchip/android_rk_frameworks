@@ -400,7 +400,7 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                 } else {
                     mInfo.type = Display.TYPE_HDMI;
                     mInfo.flags |= DisplayDeviceInfo.FLAG_PRESENTATION;
-                    boolean noRotate = "0".equals(SystemProperties.get("ro.sf.hwrotation"));
+                    boolean noRotate = "0".equals(SystemProperties.get("persist.sys.hwrotation"));
                     if(/*noRotate && */mBuiltInDisplayId == SurfaceControl.BUILT_IN_DISPLAY_ID_HDMI){
                         if (SystemProperties.getBoolean("ro.rotation.external", false)) {
                             mInfo.flags |= DisplayDeviceInfo.FLAG_ROTATES_WITH_CONTENT;

@@ -340,7 +340,7 @@ public class WindowManagerService extends IWindowManager.Stub
     private static final String SYSTEM_SECURE = "ro.secure";
     private static final String SYSTEM_DEBUGGABLE = "ro.debuggable";
     private static final String WINDOW_FAKE_ROTATION = "ro.sf.fakerotation";
-    private static final String WINDOW_ROTATION_DEGREES = "ro.sf.hwrotation";
+    private static final String WINDOW_ROTATION_DEGREES = "persist.sys.hwrotation";
 
     private static final String DENSITY_OVERRIDE = "ro.config.density_override";
     private static final String SIZE_OVERRIDE = "ro.config.size_override";

@@ -188,7 +188,8 @@ SurfaceFlinger::SurfaceFlinger()
     ALOGI_IF(mDebugRegion, "showupdates enabled");
     ALOGI_IF(mDebugDDMS, "DDMS debugging enabled");
 
-    property_get("ro.sf.hwrotation", value, "0");
+	sleep(8);
+    property_get("persist.sys.hwrotation", value, "0");
     mHardwareOrientation = atoi(value) / 90;
 
     property_get("ro.sf.lcdc_composer", value, "0");

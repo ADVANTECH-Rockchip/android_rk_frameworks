@@ -312,7 +312,7 @@ NativeInputManager::NativeInputManager(jobject contextObj,
         mLocked.showTouches = false;
         mLocked.hardwareRotation = 0;
 	char property[PROPERTY_VALUE_MAX];
-        if (property_get("ro.sf.hwrotation", property, "0") > 0) {
+        if (property_get("persist.sys.hwrotation", property, "0") > 0) {
             mLocked.hardwareRotation = atoi(property) / 90;
         }
 
