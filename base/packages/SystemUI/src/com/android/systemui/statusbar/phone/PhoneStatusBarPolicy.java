@@ -283,11 +283,11 @@ public class PhoneStatusBarPolicy implements Callback {
             mService.setIcon(SLOT_ZEN, zenIconId, 0, zenDescription);
         }
         if (zenVisible != mZenVisible) {
-            //mService.setIconVisibility(SLOT_ZEN, zenVisible);
-            mService.setIconVisibility(SLOT_ZEN, zenVisible && SystemProperties.getBoolean("persist.sb.ic.zen", true));
-			mZenVisible = zenVisible;
+            mService.setIconVisibility(SLOT_ZEN, zenVisible);
+            mZenVisible = zenVisible;
         }
-
+        boolean propZen = SystemProperties.getBoolean("persist.sb.ic.zen", true);
+        mService.setIconVisibility(SLOT_ZEN, zenVisible && (propZen));
         if (volumeVisible) {
             mService.setIcon(SLOT_VOLUME, volumeIconId, 0, volumeDescription);
         }

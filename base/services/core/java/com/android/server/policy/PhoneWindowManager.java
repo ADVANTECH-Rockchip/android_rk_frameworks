@@ -1651,6 +1651,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mStatusBarHeight =
                 res.getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height);
         int sbHeight = SystemProperties.getInt("persist.statusbar.height", mStatusBarHeight);
+        if(!SystemProperties.getBoolean("persist.statusbar", true)){
+            mStatusBarHeight = 0;
+        } else {
+            mStatusBarHeight = sbHeight;
+        }
 
         // Height of the navigation bar when presented horizontally at bottom
         mNavigationBarHeightForRotation[mPortraitRotation] =
@@ -3656,6 +3661,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             - mNavigationBarHeightForRotation[displayRotation];
                     if(hideNavBar){
                         top = displayHeight - overscanBottom;
+                    } else {
+                        top = displayHeight - overscanBottom - navbarH;
                     }
                     mTmpNavigationFrame.set(0, top, displayWidth, displayHeight - overscanBottom);
                     mStableBottom = mStableFullscreenBottom = mTmpNavigationFrame.top;
@@ -3684,6 +3691,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             - mNavigationBarWidthForRotation[displayRotation];
                     if(hideNavBar){
                         left = displayWidth - overscanRight;
+                    } else {
+                        left = displayWidth - overscanRight - navbarH;
                     }
                     mTmpNavigationFrame.set(left, 0, displayWidth - overscanRight, displayHeight);
                     mStableRight = mStableFullscreenRight = mTmpNavigationFrame.left;

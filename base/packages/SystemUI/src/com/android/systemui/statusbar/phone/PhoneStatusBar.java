@@ -832,11 +832,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 R.id.notification_panel);
         mNotificationPanel.setStatusBar(this);
 
-        //if (!ActivityManager.isHighEndGfx()) {
-        //   mStatusBarWindow.setBackground(null);
-        //    mNotificationPanel.setBackground(new FastColorDrawable(context.getColor(
-        //            R.color.notification_panel_solid_background)));
-        //}
+        if (!ActivityManager.isHighEndGfx()) {
+            mStatusBarWindow.setBackground(null);
+            mNotificationPanel.setBackground(new FastColorDrawable(context.getColor(
+                    R.color.notification_panel_solid_background)));
+        }
 
         mHeadsUpManager = new HeadsUpManager(context, mStatusBarWindow);
         mHeadsUpManager.setBar(this);
@@ -1090,7 +1090,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         // Private API call to make the shadows look better for Recents
         ThreadedRenderer.overrideProperty("ambientRatio", String.valueOf(1.5f));
-
+        setStatusBarBackgroundDrawable();
+        setStatusBarBackgroundColor();
+        setNavigationBarBackgroundDrawable();
+        setNavigationBarBackgroundColor();
         return mStatusBarView;
     }
     private void setNavigationBarBackgroundDrawable(){
@@ -1111,8 +1114,20 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             mNavigationBarView.setBackgroundColor(clr);
         }
     }
-	
-	private void setStatusBarBackgroundColor(){
+
+    private void setStatusBarBackgroundDrawable(){
+        String background_pic_path = SystemProperties.get("persist.statusbar.picture", null);
+		if(background_pic_path!=null && !background_pic_path.isEmpty()){
+			File pathToPicture = new File(background_pic_path);
+			if(pathToPicture.exists() && !pathToPicture.isDirectory()) {
+				Bitmap bitmap = BitmapFactory.decodeFile(background_pic_path);
+                Drawable drawable = new BitmapDrawable(mContext.getResources(), bitmap);
+                mStatusBarView.setBackgroundDrawable(drawable);
+			}
+		}
+    }
+
+    private void setStatusBarBackgroundColor(){
         int clr = SystemProperties.getInt("persist.statusbar.color", 0);
         if (0!=clr) {
             mStatusBarView.setBackgroundColor(clr);
@@ -1133,11 +1148,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     {
         final Resources res = mContext.getResources();
         int defaultHeight = res.getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height);
-        boolean sbVisible = SystemProperties.getBoolean("persist.statusbar", true);
+        //boolean sbVisible = SystemProperties.getBoolean("persist.statusbar", true);
         int sbHeight = SystemProperties.getInt("persist.statusbar.height", defaultHeight);
-        if(sbVisible == false || sbHeight == 0){
-            sbHeight = 0;
-        }
+        //if(sbVisible == false || sbHeight == 0){
+        //    sbHeight = 0;
+        //}
         return sbHeight;
     }
 
@@ -1416,9 +1431,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
                 PixelFormat.TRANSLUCENT);
         // this will allow the navbar to run in an overlay on devices that support this
-        //if (ActivityManager.isHighEndGfx()) {
-        //    lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
-        //}
+        if (ActivityManager.isHighEndGfx()) {
+            lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
+        }
 
         lp.setTitle("NavigationBar");
         lp.windowAnimations = 0;
@@ -2137,7 +2152,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
          showStatusBarIconTime();
          setStatusBarBackgroundColor();
          setNavigationBarBackgroundColor();
-		 setNavigationBarBackgroundDrawable();
 
         if ((diff1 & (StatusBarManager.DISABLE_HOME
                         | StatusBarManager.DISABLE_RECENT
@@ -2734,9 +2748,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 mSystemUiVisibility |= View.RECENT_APPS_VISIBLE;
             }
 
-            if(!SystemProperties.getBoolean("persist.statusbar", true)){
-                return;
-            }
             // send updated sysui visibility to window manager
             notifyUiVisibilityChanged(mSystemUiVisibility);
         }
