@@ -54,6 +54,7 @@ import android.os.PatternMatcher;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.os.SystemProperties;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -240,6 +241,14 @@ public class ResolverActivity extends Activity {
         if (configureContentView(mIntents, initialIntents, rList, alwaysUseOption)) {
             return;
         }
+	String CustomLauncherPackageName = "";
+	String LauncherChangeNow = SystemProperties.get("persist.launcher.changenow", "false");
+	if(LauncherChangeNow.equals("true")){
+		CustomLauncherPackageName = SystemProperties.get("persist.launcher.newpackagename", null);
+	}else {
+		CustomLauncherPackageName = SystemProperties.get("persist.launcher.oldpackagename", null);
+	}
+	setupDefaultLauncher(CustomLauncherPackageName);
 
         // Prevent the Resolver window from becoming the top fullscreen window and thus from taking
         // control of the system bars.
@@ -344,6 +353,16 @@ public class ResolverActivity extends Activity {
             public void onViewDetachedFromWindow(View v) {
             }
         });
+    }
+
+    private void setupDefaultLauncher(String packagename) {
+	int position = mAdapter.getCustomHomePosition(packagename);
+	if (position == -1) {
+            Log.w(TAG,"not find custom Home :" + packagename);
+            position = mAdapter.getCustomHomePosition("com.android.launcher3");
+	}
+            startSelected(position, false, false);
+            dismiss();
     }
 
     /**
@@ -1180,6 +1199,16 @@ public class ResolverActivity extends Activity {
                 finish();
             }
         }
+
+	public int getCustomHomePosition(String packageName){
+            for (int i = 0; i < mDisplayList.size(); i++) {
+		    ResolveInfo info = mDisplayList.get(i).getResolveInfo();
+		    if (info.activityInfo.packageName.equals(packageName)) {
+		           return i;
+			}
+	    }
+	    return -1;
+	}
 
         public DisplayResolveInfo getFilteredItem() {
             if (mFilterLastUsed && mLastChosenPosition >= 0) {

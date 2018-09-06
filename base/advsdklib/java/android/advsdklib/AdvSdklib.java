@@ -317,6 +317,28 @@ public class AdvSdklib {
 
 /******************************************************************************************************/
 
+/************************************** UI ---- launcher **********************************************/
+
+	public void setDefaultLauncher() throws RemoteException {
+        SystemProperties.set("persist.launcher.oldpackagename", "com.android.launcher");
+        SystemProperties.set("persist.launcher.newpackagename", "com.android.launcher");
+	}
+
+	public void setCustomizedLauncher(String packageName, boolean changenow) throws RemoteException {
+
+		if(changenow){
+			SystemProperties.set("persist.launcher.changenow", "true");
+			SystemProperties.set("persist.launcher.oldpackagename", packageName);
+			SystemProperties.set("persist.launcher.newpackagename", packageName);
+		}else {
+			SystemProperties.set("persist.launcher.changenow", "false");
+			SystemProperties.set("persist.launcher.newpackagename", packageName);
+		}
+
+	}
+
+/******************************************************************************************************/
+
 /************************************** UI ---- private functions *************************************/
 
     /**
