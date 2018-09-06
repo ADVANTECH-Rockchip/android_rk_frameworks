@@ -1393,9 +1393,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 com.android.internal.R.integer.config_defaultUiModeType);
         mHomeIntent =  new Intent(Intent.ACTION_MAIN, null);
         mHomeIntent.addCategory(Intent.CATEGORY_HOME);
-	SystemProperties.set("persist.launcher.changenow", "true");
-	String newpackagename = SystemProperties.get("persist.launcher.newpackagename", null);
-	SystemProperties.set("persist.launcher.oldpackagename", newpackagename );
         mHomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         mCarDockIntent =  new Intent(Intent.ACTION_MAIN, null);

@@ -2840,8 +2840,6 @@ package android.advsdklib {
     method public boolean isKioskModeSet();
     method public boolean isNavigationBarShow();
     method public boolean isStatusBarShow();
-    method public void setCustomizedLauncher(java.lang.String, boolean) throws android.os.RemoteException;
-    method public void setDefaultLauncher() throws android.os.RemoteException;
     method public void setKioskMode(android.view.Window, boolean);
     method public void showNavigationBar(android.view.Window, boolean);
     method public void showStatusBar(android.view.Window, boolean);
