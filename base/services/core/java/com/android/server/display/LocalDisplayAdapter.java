@@ -104,6 +104,14 @@ final class LocalDisplayAdapter extends DisplayAdapter {
             LocalDisplayDevice device = mDevices.get(builtInDisplayId);
             if (device == null) {
                 // Display was added.
+                int tmp_rotation = SystemProperties.getInt("persist.sys.hwrotation", 0);
+                if ((builtInDisplayId == SurfaceControl.BUILT_IN_DISPLAY_ID_HDMI) &&
+                        (tmp_rotation == 90 || tmp_rotation == 270)) {
+                    int temp;
+                    temp = configs[activeConfig].width;
+                    configs[activeConfig].width = configs[activeConfig].height;
+                    configs[activeConfig].height = temp;
+                }
                 device = new LocalDisplayDevice(displayToken, builtInDisplayId,
                         configs, activeConfig);
                 mDevices.put(builtInDisplayId, device);

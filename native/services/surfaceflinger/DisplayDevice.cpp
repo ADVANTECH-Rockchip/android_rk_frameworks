@@ -542,7 +542,7 @@ void DisplayDevice::setProjection(int orientation,
     const int h = mDisplayHeight;
    if (mType == DisplayDevice::DISPLAY_EXTERNAL) {
    		//orientation = 1;
-		   if(viewport.getWidth() < viewport.getHeight()){
+		   if(orientation %2 == 1 || viewport.getWidth() < viewport.getHeight()){
 		      frame = Rect(h,w);
 		   }else{
 		   	  frame = Rect(w, h);
