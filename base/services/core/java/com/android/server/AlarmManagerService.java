@@ -110,6 +110,7 @@ class AlarmManagerService extends SystemService {
     static final String TAG = "AlarmManager";
     static final boolean localLOGV = (Build.IS_DEBUGGABLE
                 && SystemProperties.getInt("persist.sys.alarm_dbg", 0) == 1);
+    //static final boolean localLOGV = true;
     static final boolean DEBUG_BATCH = localLOGV || false;
     // enable this manually if needed, enabling this will add extra logic
     static final boolean DEBUG_VALIDATE = false;
@@ -1025,6 +1026,7 @@ class AlarmManagerService extends SystemService {
 
 			// Start to setup auto power on alarm
 			if (type == AlarmManager.ELAPSED_REALTIME_WAKEUP || type == AlarmManager.ELAPSED_REALTIME){
+				if(operation.getIntent() != null && operation.getIntent().getAction() != null) {
 				if(operation.getIntent().getAction().equals("com.android.settings.action.REQUEST_POWER_ON")){
 
 				    Slog.v(TAG, "operation.getIntent.getAction().equals(com.android.settings.action.REQUEST_POWER_ON)");
@@ -1033,6 +1035,7 @@ class AlarmManagerService extends SystemService {
 				}else if(operation.getIntent().getAction().equals("com.android.settings.action.CANCLE_POWER_ON")){
 				    Slog.v(TAG, "operation.getIntent.getAction().equals(com.android.settings.action.CANCLE_POWER_ON)");
 				    updateRtcAlarm(mNativeData, triggerAtTime/1000, false);
+				}
 				}
 			}
 			// End to setup auto power on alarm
