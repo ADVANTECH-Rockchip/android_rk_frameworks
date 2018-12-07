@@ -531,7 +531,7 @@ final class NativeDaemonConnector implements Runnable, Handler.Callback, Watchdo
     }
 
     private void loge(String logstring) {
-        Slog.e(TAG, logstring);
+        if (mDebug) Slog.e(TAG, logstring);
         mLocalLog.log(logstring);
     }
 
