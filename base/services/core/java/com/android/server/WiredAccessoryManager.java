@@ -22,6 +22,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.os.SystemProperties;
 import android.os.UEventObserver;
 import android.util.Slog;
 import android.media.AudioManager;
