@@ -626,14 +626,30 @@ void DisplayDevice::setProjection(int orientation,
         ALOGV("update frame [%d,%d]",frame.getWidth(),frame.getHeight());
     }
 
-    if (mType == DisplayDevice::DISPLAY_PRIMARY) {
+    if (mType == DisplayDevice::DISPLAY_EXTERNAL) {
+         ALOGD("DISPLAY_EXTERNAL mclientOrientation = %d,mHardwareOrientation = %d,orientation = %d",mClientOrientation,mHardwareOrientation,orientation);
+    }
+     if (mType == DisplayDevice::DISPLAY_PRIMARY) {
+         ALOGD("DISPLAY_PRIMARY mclientOrientation = %d,mHardwareOrientation = %d,orientation= %d",mClientOrientation,mHardwareOrientation,orientation);
+    }
+
+    if (mType == DisplayDevice::DISPLAY_PRIMARY ||mType == DisplayDevice::DISPLAY_EXTERNAL) {
         mClientOrientation = orientation;
         orientation = (mHardwareOrientation + orientation) % 4;
     }
+
 #endif
 
     const int w = mDisplayWidth;
     const int h = mDisplayHeight;
+   if (mType == DisplayDevice::DISPLAY_EXTERNAL) {
+   		//orientation = 1;
+		   if(orientation %2 == 1 || viewport.getWidth() < viewport.getHeight()){
+		      frame = Rect(h,w);
+		   }else{
+		   	  frame = Rect(w, h);
+		   }
+   }
 
     Transform R;
     DisplayDevice::orientationToTransfrom(orientation, w, h, &R);

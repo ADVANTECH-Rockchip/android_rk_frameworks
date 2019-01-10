@@ -115,6 +115,14 @@ final class LocalDisplayAdapter extends DisplayAdapter {
             LocalDisplayDevice device = mDevices.get(builtInDisplayId);
             if (device == null) {
                 // Display was added.
+                int tmp_rotation = SystemProperties.getInt("ro.sf.hwrotation", 0);
+                if ((builtInDisplayId == SurfaceControl.BUILT_IN_DISPLAY_ID_HDMI) &&
+                        (tmp_rotation == 90 || tmp_rotation == 270)) {
+                    int temp;
+                    temp = configs[activeConfig].width;
+                    configs[activeConfig].width = configs[activeConfig].height;
+                    configs[activeConfig].height = temp;
+                }
                 device = new LocalDisplayDevice(displayToken, builtInDisplayId,
                         configs, activeConfig, colorModes, activeColorMode);
                 mDevices.put(builtInDisplayId, device);
@@ -403,6 +411,22 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                 } else {
                     mInfo.type = Display.TYPE_HDMI;
                     mInfo.flags |= DisplayDeviceInfo.FLAG_PRESENTATION;
+                    boolean noRotate = "0".equals(SystemProperties.get("persist.sys.hwrotation"));
+                    if(/*noRotate && */mBuiltInDisplayId == SurfaceControl.BUILT_IN_DISPLAY_ID_HDMI){
+                        if (SystemProperties.getBoolean("ro.rotation.external", false)) {
+                            mInfo.flags |= DisplayDeviceInfo.FLAG_ROTATES_WITH_CONTENT;
+                        }
+                        String value = SystemProperties.get("ro.orientation.einit");
+                        if ("0".equals(value)) {
+                            mInfo.rotation = Surface.ROTATION_0;
+                        } else if ("90".equals(value)) {
+                            mInfo.rotation = Surface.ROTATION_90;
+                        } else if ("180".equals(value)) {
+                            mInfo.rotation = Surface.ROTATION_180;
+                        } else if ("270".equals(value)) {
+                            mInfo.rotation = Surface.ROTATION_270;
+                        }
+                    }
                     mInfo.name = getContext().getResources().getString(
                             com.android.internal.R.string.display_manager_hdmi_display_name);
                     mInfo.touch = DisplayDeviceInfo.TOUCH_EXTERNAL;
