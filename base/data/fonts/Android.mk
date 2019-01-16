@@ -115,7 +115,58 @@ font_src_files := \
     Clockopia.ttf \
     AndroidClock.ttf \
     AndroidClock_Highlight.ttf \
-    AndroidClock_Solid.ttf
+    AndroidClock_Solid.ttf \
+    arialbd.ttf \
+    arialbi.ttf \
+    ariali.ttf \
+    arial.ttf \
+    ariblk.ttf \
+    calibrib.ttf \
+    calibrii.ttf \
+    calibrili.ttf \
+    calibril.ttf \
+    calibri.ttf \
+    calibriz.ttf \
+    cambriab.ttf \
+    cambriai.ttf \
+    cambria.ttc \
+    cambriaz.ttf \
+    georgiab.ttf \
+    georgiai.ttf \
+    georgia.ttf \
+    georgiaz.ttf \
+    kaiu.ttf \
+    LeelaUIb.ttf \
+    LeelawUI.ttf \
+    LeelUIsl.ttf \
+    malgunbd.ttf \
+    malgunsl.ttf \
+    malgun.ttf \
+    segoeuib.ttf \
+    segoeuii.ttf \
+    segoeuil.ttf \
+    segoeuisl.ttf \
+    segoeui.ttf \
+    segoeuiz.ttf \
+    seguibli.ttf \
+    seguibl.ttf \
+    seguili.ttf \
+    seguisbi.ttf \
+    seguisb.ttf \
+    seguisli.ttf \
+    simsunb.ttf \
+    tahomabd.ttf \
+    tahoma.ttf \
+    taileb.ttf \
+    taile.ttf \
+    timesbd.ttf \
+    timesbi.ttf \
+    timesi.ttf \
+    times.ttf \
+    verdanab.ttf \
+    verdanai.ttf \
+    verdana.ttf \
+    verdanaz.ttf
 
 $(foreach f, $(font_src_files), $(call build-one-font-module, $(f)))
 
