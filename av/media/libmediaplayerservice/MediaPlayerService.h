@@ -51,7 +51,7 @@ class MediaRecorderClient;
 #if CALLBACK_ANTAGONIZER
 class Antagonizer {
 public:
-    Antagonizer(notify_callback_f cb, const wp<IMediaPlayer> &client);
+    Antagonizer(const sp<MediaPlayerBase::Listener> &listener);
     void start() { mActive = true; }
     void stop() { mActive = false; }
     void kill();
@@ -59,12 +59,11 @@ private:
     static const int interval;
     Antagonizer();
     static int callbackThread(void* cookie);
-    Mutex               mLock;
-    Condition           mCondition;
-    bool                mExit;
-    bool                mActive;
-    wp<IMediaPlayer>    mClient;
-    notify_callback_f   mCb;
+    Mutex                         mLock;
+    Condition                     mCondition;
+    bool                          mExit;
+    bool                          mActive;
+    sp<MediaPlayerBase::Listener> mListener;
 };
 #endif
 
@@ -366,8 +365,7 @@ private:
         status_t                setDataSource_post(const sp<MediaPlayerBase>& p,
                                                    status_t status);
 
-        static  void            notify(const wp<IMediaPlayer> &cookie, int msg,
-                                       int ext1, int ext2, const Parcel *obj);
+                void            notify(int msg, int ext1, int ext2, const Parcel *obj);
 
                 pid_t           pid() const { return mPid; }
         virtual status_t        dump(int fd, const Vector<String16>& args);
@@ -446,7 +444,7 @@ private:
             virtual void notify(int msg, int ext1, int ext2, const Parcel *obj) {
                 sp<Client> client = mClient.promote();
                 if (client != NULL) {
-                    client->notify(mClient, msg, ext1, ext2, obj);
+                    client->notify(msg, ext1, ext2, obj);
                 }
             }
         private:

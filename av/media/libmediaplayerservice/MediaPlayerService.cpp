@@ -644,11 +644,15 @@ MediaPlayerService::Client::Client(
     mUid = uid;
     mRetransmitEndpointValid = false;
     mAudioAttributes = NULL;
+
     mMaybeVideoAlive = false;
+
+    mListener = new Listener(this);
 
 #if CALLBACK_ANTAGONIZER
     ALOGD("create Antagonizer");
-    p->setNotifyCallback(client, notifyFunc);
+    mAntagonizer = new Antagonizer(mListener);
+
 #endif
 }
 
@@ -682,7 +686,7 @@ void MediaPlayerService::Client::disconnect()
     // and reset the player. We assume the player will serialize
     // access to itself if necessary.
     if (p != 0) {
-        p->setNotifyCallback(0, 0);
+        p->setNotifyCallback(0);
 #if CALLBACK_ANTAGONIZER
         ALOGD("kill Antagonizer");
         mAntagonizer->kill();
@@ -707,7 +711,7 @@ sp<MediaPlayerBase> MediaPlayerService::Client::createPlayer(player_type playerT
         p.clear();
     }
     if (p == NULL) {
-        p = MediaPlayerFactory::createPlayer(playerType, this, notify, mPid);
+        p = MediaPlayerFactory::createPlayer(playerType, mListener, mPid);
     }
 
     if (p != NULL) {
@@ -1490,25 +1494,19 @@ status_t MediaPlayerService::Client::getRetransmitEndpoint(
 }
 
 void MediaPlayerService::Client::notify(
-        const wp<IMediaPlayer> &listener, int msg, int ext1, int ext2, const Parcel *obj)
+        int msg, int ext1, int ext2, const Parcel *obj)
 {
-    sp<IMediaPlayer> spListener = listener.promote();
-    if (spListener == NULL) {
-        return;
-    }
-    Client* client = static_cast<Client*>(spListener.get());
-
     sp<IMediaPlayerClient> c;
     sp<Client> nextClient;
     status_t errStartNext = NO_ERROR;
     {
-        Mutex::Autolock l(client->mLock);
-        c = client->mClient;
-        if (msg == MEDIA_PLAYBACK_COMPLETE && client->mNextClient != NULL) {
-            nextClient = client->mNextClient;
+        Mutex::Autolock l(mLock);
+        c = mClient;
+        if (msg == MEDIA_PLAYBACK_COMPLETE && mNextClient != NULL) {
+            nextClient = mNextClient;
 
-            if (client->mAudioOutput != NULL)
-                client->mAudioOutput->switchToNextOutput();
+            if (mAudioOutput != NULL)
+                mAudioOutput->switchToNextOutput();
 
             errStartNext = nextClient->start();
         }
@@ -1534,18 +1532,18 @@ void MediaPlayerService::Client::notify(
         MEDIA_INFO_METADATA_UPDATE == ext1) {
         const media::Metadata::Type metadata_type = ext2;
 
-        if(client->shouldDropMetadata(metadata_type)) {
+        if(shouldDropMetadata(metadata_type)) {
             return;
         }
 
         // Update the list of metadata that have changed. getMetadata
         // also access mMetadataUpdated and clears it.
-        client->addNewMetadataUpdate(metadata_type);
+        addNewMetadataUpdate(metadata_type);
     }
 
 
     if (c != NULL) {
-        ALOGV("[%d] notify (%p, %d, %d, %d)", client->mConnId, spListener.get(), msg, ext1, ext2);
+        ALOGV("[%d] notify (%d, %d, %d)", mConnId, msg, ext1, ext2);
         c->notify(msg, ext1, ext2, obj);
     }
 }
@@ -1603,8 +1601,8 @@ status_t MediaPlayerService::Client::releaseDrm()
 #if CALLBACK_ANTAGONIZER
 const int Antagonizer::interval = 10000; // 10 msecs
 
-Antagonizer::Antagonizer(notify_callback_f cb, const wp<IMediaPlayer> &client) :
-    mExit(false), mActive(false), mClient(client), mCb(cb)
+Antagonizer::Antagonizer(const sp<MediaPlayerBase::Listener> &listener) :
+    mExit(false), mActive(false), mListener(listener)
 {
     createThread(callbackThread, this);
 }

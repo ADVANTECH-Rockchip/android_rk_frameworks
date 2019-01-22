@@ -255,7 +255,7 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiRss
     private final WifiNative.VendorHalDeathEventHandler mVendorHalDeathRecipient = () -> {
         sendMessage(CMD_VENDOR_HAL_HWBINDER_DEATH);
     };
-    private boolean mIpReachabilityDisconnectEnabled = true;
+    private boolean mIpReachabilityDisconnectEnabled = false;
 
     @Override
     public void onRssiThresholdBreached(byte curRssi) {
