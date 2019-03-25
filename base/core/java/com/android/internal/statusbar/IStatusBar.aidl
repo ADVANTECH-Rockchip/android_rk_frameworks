@@ -36,6 +36,7 @@ oneway interface IStatusBar
             boolean showImeSwitcher);
     void setWindowState(int window, int state);
     void buzzBeepBlinked();
+    void showNavigationBar();
     void notificationLightOff();
     void notificationLightPulse(int argb, int millisOn, int millisOff);
 

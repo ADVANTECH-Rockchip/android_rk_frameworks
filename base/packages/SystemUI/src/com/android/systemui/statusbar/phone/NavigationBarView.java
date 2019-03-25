@@ -250,6 +250,9 @@ public class NavigationBarView extends LinearLayout {
         return mCurrentView.findViewById(R.id.custom_button_right);
     }
 
+    public View getHideNvgbarButton() {
+        return mCurrentView.findViewById(R.id.hide_nvgbar_btn);
+    }
 
     public View getRecentsButton() {
         return mCurrentView.findViewById(R.id.recent_apps);
@@ -374,6 +377,10 @@ public class NavigationBarView extends LinearLayout {
         //getBackButton().setVisibility((SystemProperties.getBoolean("persist.navbar.back", true)) ? View.VISIBLE : View.INVISIBLE);
         //getHomeButton().setVisibility((SystemProperties.getBoolean("persist.navbar.home", true)) ? View.VISIBLE : View.INVISIBLE);
         //getRecentsButton().setVisibility((SystemProperties.getBoolean("persist.navbar.recent", true)) ? View.VISIBLE : View.INVISIBLE);
+        
+        if (!SystemProperties.getBoolean("persist.nvg.hide", false)) {
+        	getHideNvgbarButton().setVisibility(View.GONE); 
+        }
         setButtonVisible(getBackButton(), "persist.navbar.back");
         setButtonVisible(getHomeButton(), "persist.navbar.home");
         setButtonVisible(getRecentsButton(), "persist.navbar.recent");

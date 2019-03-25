@@ -41,7 +41,7 @@ interface IStatusBarService
             boolean showImeSwitcher);
     void expandSettingsPanel();
     void setCurrentUser(int newUserId);
-
+    void showNavigationBar();
     // ---- Methods below are for use by the status bar policy services ----
     // You need the STATUS_BAR_SERVICE permission
     void registerStatusBar(IStatusBar callbacks, out StatusBarIconList iconList,

@@ -1515,12 +1515,20 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     public void onSwipeFromBottom() {
                         if (mNavigationBar != null && mNavigationBarOnBottom) {
                             requestTransientBars(mNavigationBar);
+                        } else {
+                            if (SystemProperties.getBoolean("persist.nvg.hide", false)) {
+                            	showNavigationBar();
+                            }
                         }
                     }
                     @Override
                     public void onSwipeFromRight() {
                         if (mNavigationBar != null && !mNavigationBarOnBottom) {
                             requestTransientBars(mNavigationBar);
+                        } else {
+                        	if (SystemProperties.getBoolean("persist.nvg.hide", false)) {
+                            	showNavigationBar();
+                            }
                         }
                     }
                     @Override
@@ -1581,6 +1589,23 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mWindowManagerInternal.registerAppTransitionListener(
                 mStatusBarController.getAppTransitionListener());
     }
+    
+    private void showNavigationBar(){
+    	mHandler.post(new Runnable() {
+    		@Override
+    		public void run() {
+    			try {
+    				IStatusBarService statusbar = getStatusBarService();
+    				if (statusbar != null) {
+    					statusbar.showNavigationBar();
+    					}
+    				} catch (RemoteException e) {
+    					// re-acquire status bar service next time it is needed.
+    					mStatusBarService = null;
+    				}
+    			}
+    		});
+    	}
 
     /**
      * Read values from config.xml that may be overridden depending on

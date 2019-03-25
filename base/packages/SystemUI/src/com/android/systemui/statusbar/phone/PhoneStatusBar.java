@@ -676,6 +676,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         notifyUserAboutHiddenNotifications();
 
         mScreenPinningRequest = new ScreenPinningRequest(mContext);
+        
+        if (SystemProperties.getBoolean("persist.nvg.hide", false)) {
+        	removeNavigationBar();
+        }
     }
 
     //screenshot
@@ -1275,7 +1279,21 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             toggleRecentApps();
         }
     };
-	
+    
+    private View.OnClickListener mHideNvgbarButtonClickListener = new View.OnClickListener() {
+        public void onClick(View v) {
+        	removeNavigationBar();
+        }
+    };
+    
+    private void removeNavigationBar() {
+    	if (mNavigationBarView == null) {
+    		return;
+    	}
+    	mWindowManager.removeView(mNavigationBarView);
+    	mNavigationBarView = null;
+    }
+    
     private View.OnClickListener mLeftCustomButtomClickListener = new View.OnClickListener() {
         public void onClick(View v) {
             awakenDreams();
@@ -1371,9 +1389,26 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     };
 
+    @Override
+    public void showNavigationBar() {
+    	forceAddNavigationBar();
+    }
+
+    private void forceAddNavigationBar() {
+    	// If we have no Navbar view and we should have one, create it
+    	if (mNavigationBarView != null) {
+    		return;
+    	}
+    	mNavigationBarView =
+    			(NavigationBarView) View.inflate(mContext, R.layout.navigation_bar, null);
+    	mNavigationBarView.setDisabledFlags(mDisabled1);
+    	mNavigationBarView.setBar(this);
+    	addNavigationBar(); // dynamically adding nav bar, reset System UI visibility!
+    }
+    	
     private void prepareNavigationBarView() {
         mNavigationBarView.reorient();
-
+        mNavigationBarView.getBarTransitions().transitionTo(MODE_TRANSPARENT, true);
         mNavigationBarView.getRecentsButton().setOnClickListener(mRecentsClickListener);
         boolean show = Settings.System.getInt(mContext.getContentResolver(),Settings.System.SCREENSHOT_BUTTON_SHOW, 0) == 1;
         if(show){
@@ -1382,7 +1417,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             mNavigationBarView.getScreenshotButton().setVisibility(View.INVISIBLE);
         }
 	    mNavigationBarView.getScreenshotButton().setOnTouchListener(mScreenshotPreloadOnTouchListener);
-
+	    mNavigationBarView.getHideNvgbarButton().setOnClickListener(mHideNvgbarButtonClickListener);
         mNavigationBarView.getLeftCustomButton().setOnClickListener(mLeftCustomButtomClickListener);
         mNavigationBarView.getRightCustomButton().setOnClickListener(mRightCustomButtomClickListener);
         mNavigationBarView.getRecentsButton().setOnClickListener(mRecentsClickListener);

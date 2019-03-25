@@ -441,6 +441,23 @@ public class StatusBarManagerService extends IStatusBarService.Stub {
                     cause, 1);
         }
     }
+    
+    @Override
+    public void showNavigationBar() {
+    	enforceStatusBar();
+    	synchronized(mLock) {
+    		mHandler.post(new Runnable() {
+    			public void run() {
+    				if (mBar != null) {
+    					try {
+    						mBar.showNavigationBar();
+    						} catch (RemoteException ex) {
+    						}
+    				}
+    			}
+    		});
+    	}
+    }
 
     private void updateUiVisibilityLocked(final int vis, final int mask) {
         if (mSystemUiVisibility != vis) {

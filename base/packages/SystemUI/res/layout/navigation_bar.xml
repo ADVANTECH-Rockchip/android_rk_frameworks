@@ -142,6 +142,14 @@
                 android:scaleType="center"
                 android:contentDescription="@string/accessibility_custom_buttom"
                 />
+            <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/hide_nvgbar_btn"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:src="@drawable/ic_sysbar_hide"
+                android:layout_weight="1"
+                android:scaleType="center"
+                android:contentDescription="@string/accessibility_hide"
+                />
             <Space 
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -367,6 +375,15 @@
                 android:layout_weight="0"
                 android:contentDescription="@string/accessibility_custom_buttom"
                 />
+          <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/hide_nvgbar_btn"
+                 android:layout_height="@dimen/navigation_key_width"
+                 android:layout_width="match_parent"
+                 android:src="@drawable/ic_sysbar_hide"
+                 android:scaleType="center"
+                 systemui:keyCode="4"
+                 android:layout_weight="0"
+                 android:contentDescription="@string/accessibility_hide"
+                 />
             <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/screenshot"
                 android:layout_width="60dp"
                 android:layout_height="match_parent"
