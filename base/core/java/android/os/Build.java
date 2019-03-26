@@ -94,6 +94,9 @@ public class Build {
     /** A hardware serial number, if available.  Alphanumeric only, case-insensitive. */
     public static final String SERIAL = getString("ro.serialno");
 
+    /** {@hide} */
+    public static final String SYS_SERIAL = getString("sys.serialno");
+
     /**
      * An ordered list of ABIs supported by this device. The most preferred ABI is the first
      * element in the list.
