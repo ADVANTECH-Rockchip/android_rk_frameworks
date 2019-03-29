@@ -73,6 +73,10 @@ public class TvStatusBar extends BaseStatusBar {
     @Override
     public void setSystemUiVisibility(int vis, int mask) {
     }
+    
+    @Override
+    public void showNavigationBar() {
+    }
 
     @Override
     public void topAppWindowChanged(boolean visible) {
