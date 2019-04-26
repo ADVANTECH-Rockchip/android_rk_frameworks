@@ -188,7 +188,7 @@ SurfaceFlinger::SurfaceFlinger()
     ALOGI_IF(mDebugRegion, "showupdates enabled");
     ALOGI_IF(mDebugDDMS, "DDMS debugging enabled");
 
-    usleep(500000);
+    usleep(2000000);
     property_get("persist.sys.hwrotation", value, "0");
     mHardwareOrientation = atoi(value) / 90;
 
