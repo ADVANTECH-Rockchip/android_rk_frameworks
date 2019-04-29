@@ -558,6 +558,9 @@ public class UsbDeviceManager {
             } else if ("CONNECTED".equals(state)) {
                 connected = 1;
                 configured = 0;
+                if (!mCharging) {
+                    mUsbDataUnlocked = true;
+                }
                 mCharging=false;
             } else if ("CONFIGURED".equals(state)) {
                 connected = 1;
