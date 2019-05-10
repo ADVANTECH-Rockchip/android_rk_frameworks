@@ -1507,12 +1507,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 new SystemGesturesPointerEventListener.Callbacks() {
                     @Override
                     public void onSwipeFromTop() {
+                        if (isGestureIsolated()) {
+                            return;
+                        }
                         if (mStatusBar != null) {
                             requestTransientBars(mStatusBar);
                         }
                     }
                     @Override
                     public void onSwipeFromBottom() {
+                        if (isGestureIsolated()) {
+                            return;
+                        }
                         if (mNavigationBar != null && mNavigationBarOnBottom) {
                             requestTransientBars(mNavigationBar);
                         } else {
@@ -1550,6 +1556,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     public void onUpOrCancel() {
                         mOrientationListener.onTouchEnd();
                     }
+                    private boolean isGestureIsolated() {
+                        WindowState win = mFocusedWindow != null ? mFocusedWindow : mTopFullscreenOpaqueWindowState;
+                        if(win != null && (win.getSystemUiVisibility() & View.SYSTEM_UI_FLAG_IMMERSIVE_GESTURE_ISOLATED) != 0)
+                            return true;
+                        else
+                            return false;
+                        }
                 });
         mImmersiveModeConfirmation = new ImmersiveModeConfirmation(mContext);
         mWindowManagerFuncs.registerPointerEventListener(mSystemGestures);

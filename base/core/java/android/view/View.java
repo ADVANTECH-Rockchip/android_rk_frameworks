@@ -2762,6 +2762,14 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     public static final int SYSTEM_UI_FLAG_LIGHT_STATUS_BAR = 0x00002000;
 
     /**
+     * @hide
+     *
+     * NOTE: Flag for {@link #setSystemUiVisibility(int)}: It help user to disable transient
+     * status bar triggered by gesture
+     */
+    public static final int SYSTEM_UI_FLAG_IMMERSIVE_GESTURE_ISOLATED = 0x00004000;
+
+    /**
      * @deprecated Use {@link #SYSTEM_UI_FLAG_LOW_PROFILE} instead.
      */
     public static final int STATUS_BAR_HIDDEN = SYSTEM_UI_FLAG_LOW_PROFILE;
