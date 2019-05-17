@@ -441,6 +441,9 @@ public class MobileSignalController extends SignalController<
                     + " ss=" + mSignalStrength);
         }
         mCurrentState.connected = hasService() && mSignalStrength != null;
+	if (mSignalStrength != null && (mSignalStrength.getCdmaLevel() > 0 || mSignalStrength.getLevel() > 0)) {
+		mCurrentState.connected=true;
+	}
         if (mCurrentState.connected) {
             if (!mSignalStrength.isGsm() && mConfig.alwaysShowCdmaRssi) {
                 mCurrentState.level = mSignalStrength.getCdmaLevel();
