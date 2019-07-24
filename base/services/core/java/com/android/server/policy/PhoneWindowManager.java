@@ -4688,12 +4688,20 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // size.  We need to do this directly, instead of relying on
             // it to bubble up from the nav bar, because this needs to
             // change atomically with screen rotations.
+            boolean hideNavBar = false;
+            if (!SystemProperties.getBoolean("persist.navbar", false)){
+                hideNavBar = true;
+            }
+
             mNavigationBarPosition = navigationBarPosition(displayWidth, displayHeight,
                     displayRotation);
             if (mNavigationBarPosition == NAV_BAR_BOTTOM) {
                 // It's a system nav bar or a portrait screen; nav bar goes on bottom.
                 int top = displayHeight - overscanBottom
                         - getNavigationBarHeight(displayRotation, uiMode);
+                if(hideNavBar){
+                    top = displayHeight - overscanBottom;
+                }
                 mTmpNavigationFrame.set(0, top, displayWidth, displayHeight - overscanBottom);
                 mStableBottom = mStableFullscreenBottom = mTmpNavigationFrame.top;
                 if (transientNavBarShowing) {
@@ -4720,6 +4728,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // Landscape screen; nav bar goes to the right.
                 int left = displayWidth - overscanRight
                         - getNavigationBarWidth(displayRotation, uiMode);
+                if(hideNavBar){
+                    left = displayWidth - overscanRight;
+                }
                 mTmpNavigationFrame.set(left, 0, displayWidth - overscanRight, displayHeight);
                 mStableRight = mStableFullscreenRight = mTmpNavigationFrame.left;
                 if (transientNavBarShowing) {

@@ -1422,6 +1422,7 @@ uint32_t CursorButtonAccumulator::getButtonState() const {
         result |= AMOTION_EVENT_BUTTON_PRIMARY;
     }
     if (mBtnRight) {
+    #if 0
         char targetProduct[PROPERTY_VALUE_MAX] = {0};
         property_get("ro.target.product", targetProduct, "");
         if (strcmp(targetProduct, "box") == 0) {
@@ -1429,6 +1430,9 @@ uint32_t CursorButtonAccumulator::getButtonState() const {
         } else {
             result |= AMOTION_EVENT_BUTTON_SECONDARY;
         }
+    #else
+        result |= AMOTION_EVENT_BUTTON_BACK;
+    #endif
     }
     if (mBtnMiddle) {
         result |= AMOTION_EVENT_BUTTON_TERTIARY;
@@ -3296,6 +3300,9 @@ TouchInputMapper::TouchInputMapper(InputDevice* device) :
         mSource(0), mDeviceMode(DEVICE_MODE_DISABLED),
         mSurfaceWidth(-1), mSurfaceHeight(-1), mSurfaceLeft(0), mSurfaceTop(0),
         mSurfaceOrientation(DISPLAY_ORIENTATION_0) {
+	char value[PROPERTY_VALUE_MAX];
+	property_get("ro.sf.hwrotation", value, "0");
+	mSurfaceOrientation = atoi(value) / 90;
 }
 
 TouchInputMapper::~TouchInputMapper() {
@@ -3679,6 +3686,8 @@ bool TouchInputMapper::hasExternalStylus() const {
 
 void TouchInputMapper::configureSurface(nsecs_t when, bool* outResetNeeded) {
     int32_t oldDeviceMode = mDeviceMode;
+    char value[PROPERTY_VALUE_MAX];
+    property_get("ro.sf.hwrotation", value, "0");
 
     resolveExternalStylusPresence();
 
@@ -3751,6 +3760,7 @@ void TouchInputMapper::configureSurface(nsecs_t when, bool* outResetNeeded) {
     bool viewportChanged = mViewport != newViewport;
     if (viewportChanged) {
         mViewport = newViewport;
+        mViewport.orientation =  atoi(value) / 90;
 
         if (mDeviceMode == DEVICE_MODE_DIRECT || mDeviceMode == DEVICE_MODE_POINTER) {
             // Convert rotated viewport to natural surface coordinates.
@@ -3808,13 +3818,13 @@ void TouchInputMapper::configureSurface(nsecs_t when, bool* outResetNeeded) {
             mSurfaceTop = naturalPhysicalTop * naturalLogicalHeight / naturalPhysicalHeight;
 
             mSurfaceOrientation = mParameters.orientationAware ?
-                    mViewport.orientation : DISPLAY_ORIENTATION_0;
+                    mViewport.orientation : atoi(value) / 90;
         } else {
             mSurfaceWidth = rawWidth;
             mSurfaceHeight = rawHeight;
             mSurfaceLeft = 0;
             mSurfaceTop = 0;
-            mSurfaceOrientation = DISPLAY_ORIENTATION_0;
+            mSurfaceOrientation = atoi(value) / 90;
         }
     }
 

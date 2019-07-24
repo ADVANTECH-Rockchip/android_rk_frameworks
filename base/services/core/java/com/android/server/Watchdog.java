@@ -86,6 +86,7 @@ public class Watchdog extends Thread {
         "/system/bin/mediaserver",
         "/system/bin/sdcard",
         "/system/bin/surfaceflinger",
+        "/vendor/bin/hw/android.hardware.graphics.composer@2.1-service", //Hardware Composer
         "media.extractor", // system/bin/mediaextractor
         "media.codec", // vendor/bin/hw/android.hardware.media.omx@1.0-service
         "com.android.bluetooth",  // Bluetooth service

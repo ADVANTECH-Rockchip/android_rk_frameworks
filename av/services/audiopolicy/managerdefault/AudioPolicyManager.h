@@ -516,7 +516,10 @@ protected:
 
         static bool streamsMatchForvolume(audio_stream_type_t stream1,
                                           audio_stream_type_t stream2);
-
+#ifdef BOX_STRATEGY
+        // hh add for load device setting for bitstream
+        void loadBitstreamDevice();
+#endif
         uid_t mUidCached;
         AudioPolicyClientInterface *mpClientInterface;  // audio policy client interface
         sp<SwAudioOutputDescriptor> mPrimaryOutput;     // primary output descriptor

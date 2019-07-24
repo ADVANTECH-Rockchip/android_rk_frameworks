@@ -121,7 +121,7 @@ else
 RK_HDR = 0
 RK_USE_DRM = 0
 RK_USE_3_FB = 0
-ifeq ($(strip $(TARGET_BOARD_PLATFORM)),rk3328)
+ifneq ($(filter rk3328 rk3228h, $(strip $(TARGET_BOARD_PLATFORM))), )
 RK_NV12_10_TO_NV12_BY_RGA = 1
 RK_NV12_10_TO_NV12_BY_NENO = 0
 else

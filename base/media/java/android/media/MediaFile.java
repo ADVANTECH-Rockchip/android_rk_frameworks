@@ -124,6 +124,7 @@ public class MediaFile {
     public static final int FILE_TYPE_MS_EXCEL      = 105;
     public static final int FILE_TYPE_MS_POWERPOINT = 106;
     public static final int FILE_TYPE_ZIP           = 107;
+    public static final int FILE_TYPE_APK           = 108;
 
     public static class MediaFileType {
         public final int fileType;
@@ -288,6 +289,8 @@ public class MediaFile {
         addFileType("MPG", FILE_TYPE_MP2PS, "video/mp2p");
         addFileType("MPEG", FILE_TYPE_MP2PS, "video/mp2p");
         addFileType("VOB", FILE_TYPE_MPG, "video/mpg");
+        addFileType("APK", FILE_TYPE_APK, "application/application");
+        addFileType("APK", FILE_TYPE_APK, "application/vnd.android.package-archive");
     }
 
     public static boolean isAudioFileType(int fileType) {

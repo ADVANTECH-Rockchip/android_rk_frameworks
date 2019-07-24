@@ -3650,6 +3650,68 @@ static status_t deserializeAudioPolicyXmlConfig(AudioPolicyConfig &config) {
 }
 #endif
 
+#ifdef BOX_STRATEGY
+void AudioPolicyManager::loadBitstreamDevice()
+{
+    const char* address = "RK_BITSTREAM_DEVICE_ADDRESS";
+    #define CARDSDEFAULT               0
+    #define CARDSTRATEGYSPDIF          1
+    #define CARDSTRATEGYBOTH           9
+    #define CARDSTRATEGYSPDIFPR        8
+    #define CARDSTRATEGYHDMIMUL        7
+    #define CARDSTRATEGYHDMIBS         6
+    #define CARDSTRATEGYBOTHSTR        "9"
+    #define MEDIA_CFG_AUDIO_BYPASS     "media.cfg.audio.bypass"
+    #define MEDIA_CFG_AUDIO_MUL        "media.cfg.audio.mul"
+    #define MEDIA_AUDIO_CURRENTPB      "persist.audio.currentplayback"
+    #define MEDIA_AUDIO_LASTPB "persist.audio.lastsocplayback"
+
+    char value[PROPERTY_VALUE_MAX] = "";
+    int cardStrategy= 0;
+
+    property_get(MEDIA_AUDIO_CURRENTPB, value, "-1");
+    cardStrategy = atoi(value);
+    property_set(MEDIA_CFG_AUDIO_BYPASS, "false");
+    property_set(MEDIA_CFG_AUDIO_MUL, "false");
+
+    ALOGD("cardStrategy = %d , hasSpdif() = %d", cardStrategy,hasSpdif());
+    switch(cardStrategy){
+    case CARDSDEFAULT:
+         if(hasSpdif()) {
+            setDeviceConnectionState(AUDIO_DEVICE_OUT_SPDIF,AUDIO_POLICY_DEVICE_STATE_AVAILABLE,address,"");
+         }
+         setDeviceConnectionState(AUDIO_DEVICE_OUT_AUX_DIGITAL,AUDIO_POLICY_DEVICE_STATE_AVAILABLE,address,"");
+         property_set(MEDIA_CFG_AUDIO_BYPASS, "false");
+         property_set(MEDIA_CFG_AUDIO_MUL, "false");
+         break;
+    case CARDSTRATEGYHDMIMUL:
+         setDeviceConnectionState(AUDIO_DEVICE_OUT_AUX_DIGITAL,AUDIO_POLICY_DEVICE_STATE_AVAILABLE,address,"");
+         property_set(MEDIA_CFG_AUDIO_MUL, "true");
+         break;
+    case CARDSTRATEGYSPDIF:
+    case CARDSTRATEGYSPDIFPR:
+         if(hasSpdif()) {
+            setDeviceConnectionState(AUDIO_DEVICE_OUT_SPDIF,AUDIO_POLICY_DEVICE_STATE_AVAILABLE,address,"");
+         }
+         if(cardStrategy==CARDSTRATEGYSPDIFPR)
+            property_set(MEDIA_CFG_AUDIO_BYPASS, "true");
+         else
+            property_set(MEDIA_CFG_AUDIO_BYPASS, "false");
+         break;
+    case CARDSTRATEGYHDMIBS:
+         setDeviceConnectionState(AUDIO_DEVICE_OUT_AUX_DIGITAL,AUDIO_POLICY_DEVICE_STATE_AVAILABLE,address,"");
+         property_set(MEDIA_CFG_AUDIO_BYPASS, "true");
+         property_set(MEDIA_CFG_AUDIO_MUL, "false");
+         break;
+    default:
+         property_set(MEDIA_AUDIO_CURRENTPB, "0");
+         property_set(MEDIA_AUDIO_LASTPB, "0");
+         break;
+    }
+    system("sync");
+}
+#endif
+
 AudioPolicyManager::AudioPolicyManager(AudioPolicyClientInterface *clientInterface)
     :
 #ifdef AUDIO_POLICY_TEST
@@ -3701,76 +3763,6 @@ AudioPolicyManager::AudioPolicyManager(AudioPolicyClientInterface *clientInterfa
         return;
     }
 
-#ifdef BOX_STRATEGY
-    sp<DeviceDescriptor>  hdmiOutputDevice = new DeviceDescriptor(AUDIO_DEVICE_OUT_AUX_DIGITAL);
-    sp<DeviceDescriptor>  spdifOutputDevice = new DeviceDescriptor(AUDIO_DEVICE_OUT_SPDIF);
-
-    hdmiOutputDevice->mAddress = "";
-    spdifOutputDevice->mAddress = "";
-    #define CARDSDEFAULT               0
-    #define CARDSTRATEGYSPDIF          1
-    #define CARDSTRATEGYBOTH           9
-    #define CARDSTRATEGYSPDIFPR        8
-    #define CARDSTRATEGYHDMIMUL        7
-    #define CARDSTRATEGYHDMIBS         6
-    #define CARDSTRATEGYBOTHSTR        "9"
-    #define MEDIA_CFG_AUDIO_BYPASS     "media.cfg.audio.bypass"
-    #define MEDIA_CFG_AUDIO_MUL        "media.cfg.audio.mul"
-    #define MEDIA_AUDIO_CURRENTPB      "persist.audio.currentplayback"
-    #define MEDIA_AUDIO_LASTPB "persist.audio.lastsocplayback"
-
-    char value[PROPERTY_VALUE_MAX] = "";
-    int cardStrategy= 0;
-
-    property_get(MEDIA_AUDIO_CURRENTPB, value, "-1");
-    cardStrategy = atoi(value);
-    property_set(MEDIA_CFG_AUDIO_BYPASS, "false");
-    property_set(MEDIA_CFG_AUDIO_MUL, "false");
-
-    ALOGD("cardStrategy = %d , hasSpdif() = %d", cardStrategy,hasSpdif());
-    if(hasSpdif())
-       mAvailableOutputDevices.add(spdifOutputDevice);
-       mAvailableOutputDevices.add(hdmiOutputDevice);
-    switch(cardStrategy){
-    case CARDSDEFAULT:
-         if(hasSpdif())
-            mAvailableOutputDevices.add(spdifOutputDevice);
-         mAvailableOutputDevices.add(hdmiOutputDevice);
-         property_set(MEDIA_CFG_AUDIO_BYPASS, "false");
-         property_set(MEDIA_CFG_AUDIO_MUL, "false");
-         break;
-    case CARDSTRATEGYHDMIMUL:
-         mAvailableOutputDevices.add(hdmiOutputDevice);
-         mAvailableOutputDevices.remove(spdifOutputDevice);
-         property_set(MEDIA_CFG_AUDIO_MUL, "true");
-         break;
-    case CARDSTRATEGYSPDIF:
-    case CARDSTRATEGYSPDIFPR:
-         if(hasSpdif())
-            mAvailableOutputDevices.add(spdifOutputDevice);
-         mAvailableOutputDevices.remove(hdmiOutputDevice);
-         if(cardStrategy==CARDSTRATEGYSPDIFPR)
-            property_set(MEDIA_CFG_AUDIO_BYPASS, "true");
-         else
-            property_set(MEDIA_CFG_AUDIO_BYPASS, "false");
-         break;
-    case CARDSTRATEGYHDMIBS:
-         if(hasSpdif())
-            mAvailableOutputDevices.add(spdifOutputDevice);
-         mAvailableOutputDevices.add(hdmiOutputDevice);
-         property_set(MEDIA_CFG_AUDIO_BYPASS, "true");
-         property_set(MEDIA_CFG_AUDIO_MUL, "false");
-         break;
-    default:
-         if(hasSpdif())
-            mAvailableOutputDevices.add(spdifOutputDevice);
-         mAvailableOutputDevices.add(hdmiOutputDevice);
-         property_set(MEDIA_AUDIO_CURRENTPB, "0");
-         property_set(MEDIA_AUDIO_LASTPB, "0");
-         break;
-    }
-    system("sync");
-#endif
     // Retrieve the Policy Manager Interface
     mEngine = engineInstance->queryInterface<AudioPolicyManagerInterface>();
     if (mEngine == NULL) {
@@ -3967,6 +3959,10 @@ AudioPolicyManager::AudioPolicyManager(AudioPolicyClientInterface *clientInterfa
     ALOGE_IF((mPrimaryOutput == 0), "Failed to open primary output");
 
     updateDevicesAndOutputs();
+
+#ifdef BOX_STRATEGY
+    loadBitstreamDevice();
+#endif
 
 #ifdef AUDIO_POLICY_TEST
     if (mPrimaryOutput != 0) {

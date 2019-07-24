@@ -103,6 +103,8 @@ public:
     // will result in events happening at 30Hz.  Default is zero.  The idea
     // is to sacrifice smoothness for battery life.
     void setRefreshSkipCount(int count);
+    // RK support
+    void updateRefreshSkipCountByProperty();
 
     // addEventListener registers a callback to be called repeatedly at the
     // given phase offset from the hardware vsync events.  The callback is

@@ -1007,6 +1007,9 @@ public class StatusBar extends SystemUI implements DemoMode,
         updateTheme();
 
         inflateStatusBarWindow(context);
+        if(!SystemProperties.getBoolean("persist.statusbar", false)){
+            mStatusBarWindow.setVisibility(View.INVISIBLE);
+        }
         mStatusBarWindow.setService(this);
         mStatusBarWindow.setOnTouchListener(getStatusBarWindowTouchListener());
 
@@ -3305,6 +3308,9 @@ public class StatusBar extends SystemUI implements DemoMode,
                 mSystemUiVisibility &= ~View.NAVIGATION_BAR_UNHIDE;
             }
 
+            if(!SystemProperties.getBoolean("persist.statusbar", false)){
+                return;
+            }
             // send updated sysui visibility to window manager
             notifyUiVisibilityChanged(mSystemUiVisibility);
         }

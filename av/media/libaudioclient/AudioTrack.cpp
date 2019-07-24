@@ -1566,7 +1566,11 @@ status_t AudioTrack::createTrack_l()
     // Make sure that application is notified with sufficient margin before underrun.
     // The client can divide the AudioTrack buffer into sub-buffers,
     // and expresses its desire to server as the notification frame count.
-    if (mSharedBuffer == 0 && audio_is_linear_pcm(mFormat)) {
+    /*
+     * fix bug: if create an AudioTrack with this parameter: mFormat = IEC61937 and transferType == TRANSFER_CALLBACK,
+     * this value of mNotificationFramesAct is always 0, this lead to no datas can passed from callback function to audioflinger.
+     */
+    if (mSharedBuffer == 0 && audio_has_proportional_frames(mFormat)) { // audio_is_linear_pcm
         size_t maxNotificationFrames;
         if (mFlags & AUDIO_OUTPUT_FLAG_FAST) {
             // notify every HAL buffer, regardless of the size of the track buffer

@@ -36,6 +36,9 @@
 #include "SurfaceFlinger.h"
 #include "EventLog/EventLog.h"
 
+#include <cutils/properties.h>
+
+
 using std::max;
 using std::min;
 
@@ -498,6 +501,17 @@ void DispSync::setRefreshSkipCount(int count) {
     Mutex::Autolock lock(mMutex);
     ALOGD("setRefreshSkipCount(%d)", count);
     mRefreshSkipCount = count;
+    updateModelLocked();
+}
+
+void DispSync::updateRefreshSkipCountByProperty() {
+    Mutex::Autolock lock(mMutex);
+    char value[PROPERTY_VALUE_MAX];
+    property_get("persist.sys.refresh_skip_count", value, "0");
+    if(mRefreshSkipCount == atoi(value))
+        return;
+    mRefreshSkipCount = atoi(value);
+    ALOGD("setRefreshSkipCount(%d)", mRefreshSkipCount);
     updateModelLocked();
 }
 

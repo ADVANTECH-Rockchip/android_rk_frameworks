@@ -97,6 +97,7 @@ extern eeColor::APIFunctions gEEColorAPIFunctions;
 #define DISPLAY_COUNT       1
 #define SKIP_FRAMES         1
 
+static bool mali_r18_workround = 0;
 /*
  * DEBUG_SCREENSHOTS: set to true to check that screenshots are not all
  * black pixels.
@@ -1799,6 +1800,8 @@ void SurfaceFlinger::postComposition(nsecs_t refreshStartTime)
             disableHardwareVsync(false);
         }
     }
+    //RK support: to set DispSync mRefreshSkipCount by property.
+    mPrimaryDispSync.updateRefreshSkipCountByProperty();
 
     if (!hasSyncFramework) {
         if (hw->isDisplayOn()) {
@@ -2027,6 +2030,55 @@ void SurfaceFlinger::setUpHWComposer() {
         if (hwcId < 0) {
             continue;
         }
+        /*
+         * MALI R18 WORKROUND method:
+         *   Mali ddk update to r18 will cause some display problem:
+         *   1) Extend display device exist and system is going to rotate, the primary will
+         *      output a error frame.
+         *   2) Extend display device exist and system is going to sleep, the primary will
+         *      output a error frame.
+         */
+        mIsSkipThisFrame = false;
+        if (displayDevice->getDisplayType() == HWC_DISPLAY_PRIMARY) {
+            mIsSkipThisFrame = skipFramesBeforRotate(displayDevice, frameIndex, SKIP_FRAMES);
+            for (auto& layer : displayDevice->getVisibleLayersSortedByZ()) {
+                /*
+                 * MALI R18 WORKROUND method carried out:
+                 *   1) Extend display device exist and system is going to rotate, the primary will
+                 *      output a error frame.
+                 */
+                if (strstr(layer->getName().string(), "ScreenshotSurface")) {
+                    int newValue = layer->getDataSpace();
+                    if (mIsSkipThisFrame) {
+                        newValue |= 0xAA;
+                    } else {
+                        newValue &= ~0xAA;
+                    }
+                    layer->setDataSpace((android_dataspace) newValue);
+                /*
+                 * MALI R18 WORKROUND method carried out:
+                 *   2) Extend display device exist and system is going to sleep, the primary will
+                 *      output a error frame.
+                 */
+                }else if(mali_r18_workround){
+                    int newValue = layer->getDataSpace();
+                    if (mIsSkipThisFrame) {
+                        newValue |= 0xAA;
+                    } else {
+                        newValue &= ~0xAA;
+                    }
+                    layer->setDataSpace((android_dataspace) newValue);
+                }else{
+                    int newValue = layer->getDataSpace();
+                    newValue &= ~0xAA;
+                    layer->setDataSpace((android_dataspace) newValue);
+
+                }
+            }
+        }
+        /*
+         * MALI R18 WORKROUND method end.
+         */
 
         if (colorMatrix != mPreviousColorMatrix) {
             status_t result = mHwc->setColorTransform(hwcId, colorMatrix);
@@ -2050,24 +2102,6 @@ void SurfaceFlinger::setUpHWComposer() {
             newColorMode = pickColorMode(newDataSpace);
 
             setActiveColorModeInternal(displayDevice, newColorMode);
-        }
-
-        mIsSkipThisFrame = false;
-        //Skip a series frames when rotating with HDMI display connected;
-        if (displayDevice->getDisplayType() == HWC_DISPLAY_PRIMARY) {
-            mIsSkipThisFrame = skipFramesBeforRotate(displayDevice, frameIndex, SKIP_FRAMES);
-            for (auto& layer : displayDevice->getVisibleLayersSortedByZ()) {
-                if (strstr(layer->getName().string(), "ScreenshotSurface")) {
-                    int newValue = layer->getDataSpace();
-                    if (mIsSkipThisFrame) {
-                        newValue |= 0xAA;
-                    } else {
-                        newValue &= ~0xAA;
-                    }
-                    layer->setDataSpace((android_dataspace) newValue);
-                    break;
-                }
-            }
         }
     }
 
@@ -2795,6 +2829,7 @@ bool SurfaceFlinger::skipFramesBeforRotate(const sp<const DisplayDevice>& displa
 {
     bool findTargetLayer = false;
     bool orientationChanged = false;
+    bool orientationPrimaryChanged = false;
     bool existDisplayExternal = false;
     static int displayDeviceOrientationOld;
 
@@ -2802,10 +2837,13 @@ bool SurfaceFlinger::skipFramesBeforRotate(const sp<const DisplayDevice>& displa
     if (displayDeviceOrientationNew != displayDeviceOrientationOld) {
         orientationChanged = true;
     }
+    if (displayDeviceOrientationNew != 0) {
+        orientationPrimaryChanged = true;
+    }
 
     for (size_t dpy=0 ; dpy<mDisplays.size() ; dpy++) {
         const sp<DisplayDevice>& hw(mDisplays[dpy]);
-        if (hw->getDisplayType() == HWC_DISPLAY_EXTERNAL && hw->isDisplayOn()) {
+        if (hw->getDisplayType() != HWC_DISPLAY_PRIMARY && hw->isDisplayOn()) {
             existDisplayExternal = true;
             break;
         }
@@ -2818,15 +2856,20 @@ bool SurfaceFlinger::skipFramesBeforRotate(const sp<const DisplayDevice>& displa
         }
     }
 
-    if (orientationChanged && existDisplayExternal && findTargetLayer) {
+    if (((orientationChanged && findTargetLayer) || (orientationPrimaryChanged && mali_r18_workround))
+         && existDisplayExternal ) {
         if (index < skipFrameNum){
-            ALOGD("RK_DEBUG: Skip %d frames", ++index);
+            ALOGI("MALI-R18-WORKROUND: Skip %d frames", ++index);
             return true;
         } else {
-            ALOGD("RK_DEBUG: Skip frames done.");
+            ALOGI("MALI-R18-WORKROUND: Skip %d frames have done.",skipFrameNum);
             index = 0;
+            mali_r18_workround = false;
             displayDeviceOrientationOld = displayDeviceOrientationNew;
         }
+    }else{
+        mali_r18_workround = false;
+        displayDeviceOrientationOld = displayDeviceOrientationNew;
     }
     return false;
 }
@@ -4672,7 +4715,7 @@ status_t SurfaceFlinger::captureScreen(const sp<IBinder>& display,
         // queueBuffer takes ownership of syncFd
         result = window->queueBuffer(window, buffer, syncFd);
     }
-
+    mali_r18_workround = true;
     return result;
 }
 
