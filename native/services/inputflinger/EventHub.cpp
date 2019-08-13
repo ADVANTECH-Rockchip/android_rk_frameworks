@@ -1358,7 +1358,7 @@ status_t EventHub::openDeviceLocked(const char *devicePath) {
 
     // Determine whether the device is external or internal.
     if (isExternalDeviceLocked(device)) {
-        device->classes |= INPUT_DEVICE_CLASS_EXTERNAL;
+        // device->classes |= INPUT_DEVICE_CLASS_EXTERNAL;
     }
 
     if (device->classes & (INPUT_DEVICE_CLASS_JOYSTICK | INPUT_DEVICE_CLASS_DPAD)
