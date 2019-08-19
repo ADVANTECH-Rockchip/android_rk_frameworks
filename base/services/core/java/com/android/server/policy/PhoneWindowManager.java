@@ -4689,7 +4689,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // it to bubble up from the nav bar, because this needs to
             // change atomically with screen rotations.
             boolean hideNavBar = false;
-            if (!SystemProperties.getBoolean("persist.navbar", false)){
+            if (!SystemProperties.getBoolean("persist.navbar", true)){
                 hideNavBar = true;
             }
 
