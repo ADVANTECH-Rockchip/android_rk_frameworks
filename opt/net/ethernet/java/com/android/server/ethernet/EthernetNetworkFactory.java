@@ -99,6 +99,7 @@ class EthernetNetworkFactory {
     private NetworkAgent mNetworkAgent;
     private LocalNetworkFactory mFactory;
     private Context mContext;
+	private boolean mStopNetwork = false;
 
     /** Product-dependent regular expression of interface names we track. */
     private static String mIfaceMatch = "";
@@ -150,9 +151,11 @@ class EthernetNetworkFactory {
         }
 
         protected void startNetwork() {
+            mStopNetwork = false;
             onRequestNetwork();
         }
         protected void stopNetwork() {
+            mStopNetwork = true;
         }
     }
 
@@ -421,17 +424,30 @@ class EthernetNetworkFactory {
                     // the dhcp client stays running, but if the renewal fails,
                     // we will lose our IP address and connectivity without
                     // noticing.
-                    if (!NetworkUtils.runDhcp(mIface, dhcpResults)) {
+                    while (!NetworkUtils.runDhcp(mIface, dhcpResults)) {
                         Log.e(TAG, "DHCP request error:" + NetworkUtils.getDhcpError());
-                        sendEthernetStateChangedBroadcast(EthernetManager.ETHER_STATE_DISCONNECTED); 
+                        //sendEthernetStateChangedBroadcast(EthernetManager.ETHER_STATE_DISCONNECTED);
                         // set our score lower than any network could go
                         // so we get dropped.
-                        mFactory.setScoreFilter(-1);
+                        //mFactory.setScoreFilter(-1);
                         // If DHCP timed out (as opposed to failing), the DHCP client will still be
                         // running, because in M we changed its timeout to infinite. Stop it now.
                         NetworkUtils.stopDhcp(mIface);
+                        if(mStopNetwork)
+                        {
+                            sendEthernetStateChangedBroadcast(EthernetManager.ETHER_STATE_DISCONNECTED);
+                            Log.e(TAG, "DHCP request stop");
+                            return;
+                        }
+                    }
+                    if(mStopNetwork)
+                    {
+                        NetworkUtils.stopDhcp(mIface);
+                        sendEthernetStateChangedBroadcast(EthernetManager.ETHER_STATE_DISCONNECTED);
+                        Log.e(TAG, "DHCP request stop");
                         return;
                     }
+                    Log.e(TAG, "DHCP request OK");
                     linkProperties = dhcpResults.toLinkProperties(mIface);
                 }
                 if (config.getProxySettings() == ProxySettings.STATIC ||

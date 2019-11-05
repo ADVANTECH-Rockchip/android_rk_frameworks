@@ -826,8 +826,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         mStatusBarView = (PhoneStatusBarView) mStatusBarWindow.findViewById(R.id.status_bar);
         mStatusBarView.setBar(this);
-        FrameLayout.LayoutParams lytp = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, getStatusBarHeightFromProperty());
-        mStatusBarView.setLayoutParams(lytp);
 
         PanelHolder holder = (PanelHolder) mStatusBarWindow.findViewById(R.id.panel_holder);
         mStatusBarView.setPanelHolder(holder);
@@ -836,11 +834,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 R.id.notification_panel);
         mNotificationPanel.setStatusBar(this);
 
-        if (!ActivityManager.isHighEndGfx()) {
-            mStatusBarWindow.setBackground(null);
-            mNotificationPanel.setBackground(new FastColorDrawable(context.getColor(
-                    R.color.notification_panel_solid_background)));
-        }
+        //if (!ActivityManager.isHighEndGfx()) {
+        //   mStatusBarWindow.setBackground(null);
+        //    mNotificationPanel.setBackground(new FastColorDrawable(context.getColor(
+        //            R.color.notification_panel_solid_background)));
+        //}
 
         mHeadsUpManager = new HeadsUpManager(context, mStatusBarWindow);
         mHeadsUpManager.setBar(this);
@@ -2171,12 +2169,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 mIconController.showSystemIconArea(animate);
             }
         }
-        /*
+
         if ((diff1 & StatusBarManager.DISABLE_CLOCK) != 0) {
             boolean visible = (state1 & StatusBarManager.DISABLE_CLOCK) == 0;
             mIconController.setClockVisibility(visible);
         }
-		*/
         if ((diff1 & StatusBarManager.DISABLE_EXPAND) != 0) {
             if ((state1 & StatusBarManager.DISABLE_EXPAND) != 0) {
                 animateCollapsePanels();
