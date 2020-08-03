@@ -396,7 +396,7 @@ void SurfaceFlinger::bootFinished()
     // stop boot animation
     // formerly we would just kill the process, but we now ask it to exit so it
     // can choose where to stop the animation.
-    property_set("service.bootanim.exit", "1");
+    //property_set("service.bootanim.exit", "1");
 
     const int LOGTAG_SF_STOP_BOOTANIM = 60110;
     LOG_EVENT_LONG(LOGTAG_SF_STOP_BOOTANIM,

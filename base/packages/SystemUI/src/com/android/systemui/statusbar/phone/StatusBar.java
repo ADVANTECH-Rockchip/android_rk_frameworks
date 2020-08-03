@@ -3278,6 +3278,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                 Integer.toHexString(oldVal), Integer.toHexString(newVal),
                 Integer.toHexString(diff)));
         boolean sbModeChanged = false;
+        boolean prop = SystemProperties.getBoolean("persist.statusbar", true);
         if (diff != 0) {
             mSystemUiVisibility = newVal;
 
@@ -3308,13 +3309,16 @@ public class StatusBar extends SystemUI implements DemoMode,
                 mSystemUiVisibility &= ~View.NAVIGATION_BAR_UNHIDE;
             }
 
-            if(!SystemProperties.getBoolean("persist.statusbar", true)){
+            mStatusBarWindow.setVisibility(prop ? View.VISIBLE : View.GONE);
+            if (!prop) {
                 return;
             }
             // send updated sysui visibility to window manager
             notifyUiVisibilityChanged(mSystemUiVisibility);
         }
-
+        if (!prop) {
+            return;
+        }
         mLightBarController.onSystemUiVisibilityChanged(fullscreenStackVis, dockedStackVis,
                 mask, fullscreenStackBounds, dockedStackBounds, sbModeChanged, mStatusBarMode);
     }

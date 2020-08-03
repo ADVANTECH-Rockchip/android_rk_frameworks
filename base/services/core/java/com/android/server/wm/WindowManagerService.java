@@ -3523,7 +3523,7 @@ public class WindowManagerService extends IWindowManager.Stub
                 return;
             }
 
-            if (!mBootAnimationStopped) {
+            /*if (!mBootAnimationStopped) {
                 Trace.asyncTraceBegin(TRACE_TAG_WINDOW_MANAGER, "Stop bootanim", 0);
                 // stop boot animation
                 // formerly we would just kill the process, but we now ask it to exit so it
@@ -3535,7 +3535,7 @@ public class WindowManagerService extends IWindowManager.Stub
             if (!mForceDisplayEnabled && !checkBootAnimationCompleteLocked()) {
                 if (DEBUG_BOOT) Slog.i(TAG_WM, "performEnableScreen: Waiting for anim complete");
                 return;
-            }
+            }*/
 
             try {
                 IBinder surfaceFlinger = ServiceManager.getService("SurfaceFlinger");

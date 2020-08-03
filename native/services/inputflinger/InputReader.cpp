@@ -3760,7 +3760,7 @@ void TouchInputMapper::configureSurface(nsecs_t when, bool* outResetNeeded) {
     bool viewportChanged = mViewport != newViewport;
     if (viewportChanged) {
         mViewport = newViewport;
-        mViewport.orientation =  atoi(value) / 90;
+        mViewport.orientation =  (atoi(value) / 90 + newViewport.orientation)%4;
 
         if (mDeviceMode == DEVICE_MODE_DIRECT || mDeviceMode == DEVICE_MODE_POINTER) {
             // Convert rotated viewport to natural surface coordinates.

@@ -23,6 +23,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.os.SystemProperties;
 
 import com.android.systemui.BatteryMeterView;
 import com.android.systemui.DejankUtils;
@@ -140,6 +141,10 @@ public class PhoneStatusBarView extends PanelBar {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+    	if (!SystemProperties.getBoolean("persist.statusbar", true)) {
+    		return false;
+    	}
+    	
         boolean barConsumedEvent = mBar.interceptTouchEvent(event);
 
         if (DEBUG_GESTURES) {

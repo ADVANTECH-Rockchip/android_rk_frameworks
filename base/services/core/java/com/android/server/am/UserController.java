@@ -74,6 +74,7 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.UserManagerInternal;
@@ -401,6 +402,13 @@ final class UserController {
                     finishUserUnlockedCompleted(uss);
                 }
             }
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                	SystemProperties.set("service.bootanim.exit", "1");
+                }
+            }, 1500);
         }
     }
 

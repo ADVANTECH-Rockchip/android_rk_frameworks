@@ -69,6 +69,7 @@ static wifi_device supported_wifi_devices[] = {
 	{"AP6255",      "02d0:a9bf"},
 	{"RTL8822BE",	"10ec:b822"},
 	{"MVL88W8977",	"02df:9145"},
+	{"MVL88W8997",	"02df:9141"},
 };
 
 int get_wifi_device_id(const char *bus_dir, const char *prefix)

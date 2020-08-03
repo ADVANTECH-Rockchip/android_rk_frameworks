@@ -123,6 +123,7 @@ typedef struct _wifi_ko_file_name
 #define UNKKOWN_DRIVER_MODULE_ARG ""
 #define SSV6051_DRIVER_MODULE_ARG "stacfgpath=/vendor/etc/firmware/ssv6051-wifi.cfg"
 #define MVL88W8977_DRIVER_MODULE_ARG "drv_mode=1 fw_name=mrvl/sd8977_wlan_v2.bin cal_data_cfg=none cfg80211_wext=0xf"
+#define MVL88W8997_DRIVER_MODULE_ARG "cal_data_cfg=none cfg80211_wext=12 sta_name=wlan wfd_name=p2p p2p_enh=1 max_vir_bss=1"
 
 wifi_ko_file_name module_list[] =
 {
@@ -148,6 +149,7 @@ wifi_ko_file_name module_list[] =
 	{"AP6255",          BCM_DRIVER_MODULE_NAME,       BCM_DRIVER_MODULE_PATH, UNKKOWN_DRIVER_MODULE_ARG},
 	{"APXXX",           BCM_DRIVER_MODULE_NAME,       BCM_DRIVER_MODULE_PATH, UNKKOWN_DRIVER_MODULE_ARG},
 	{"MVL88W8977",      MVL_DRIVER_MODULE_NAME,       MVL_DRIVER_MODULE_PATH, MVL88W8977_DRIVER_MODULE_ARG},
+	{"MVL88W8997",      MVL_DRIVER_MODULE_NAME,       MVL_DRIVER_MODULE_PATH, MVL88W8997_DRIVER_MODULE_ARG},
 	{"UNKNOW",       DRIVER_MODULE_NAME_UNKNOW,    DRIVER_MODULE_PATH_UNKNOW, UNKKOWN_DRIVER_MODULE_ARG}
 
 };
