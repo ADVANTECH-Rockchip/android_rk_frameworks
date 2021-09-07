@@ -51,6 +51,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PatternMatcher;
+import android.os.SystemProperties;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -865,6 +866,25 @@ public class ResolverActivity extends Activity {
             }
         }
         if (count > 0) {
+            if (mAdapter.mOrigResolveList != null) {
+            String sPacName = SystemProperties.get("persist.sys.deflauncher");
+                int size = mAdapter.mOrigResolveList.size();
+                for(int j = 0; j < size; j++) {
+                    final ResolveInfo r = mAdapter.mOrigResolveList.get(j).getResolveInfoAt(0);
+                    Log.e(TAG, "Package Name:"+r.activityInfo.packageName+" Class Name:"+r.activityInfo.name);
+                    if (r.activityInfo.packageName.equals(sPacName)){
+                        Log.e(TAG, "Start app test as launcher!");
+                        final TargetInfo target = mAdapter.targetInfoForPosition(j, false);
+                        if (shouldAutoLaunchSingleChoice(target)) {
+                            safelyStartActivity(target);
+                            mPackageMonitor.unregister();
+                            mRegistered = false;
+                            finish();
+                            return true;
+                        }
+                    }
+                }
+            }
             setContentView(layoutId);
             mAdapterView = (AbsListView) findViewById(R.id.resolver_list);
             onPrepareAdapterView(mAdapterView, mAdapter, alwaysUseOption);
